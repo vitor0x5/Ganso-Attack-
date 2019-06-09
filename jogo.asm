@@ -9,6 +9,8 @@ INCLUDE Irvine32.inc
 
 outHandle    DWORD ? 
 scrSize COORD <85,50>
+PosX BYTE ?
+PosY BYTE ?
 
 ; Logo do jogo
 logo BYTE "         ____                            _   _   _             _    _ _ ",0ah, 0dh  
@@ -17,14 +19,42 @@ logo BYTE "         ____                            _   _   _             _    _
 	 BYTE "	| |_| | (_| | | | \__ \ (_) |  / ___ \ |_| || (_| | (__|   <|_|_|",0ah, 0dh  
 	 BYTE "	 \____|\__,_|_| |_|___/\___/  /_/   \_\__|\__\__,_|\___|_|\_(_|_)",0ah, 0dh, 0 
 
-;MENU
+; MENU
  menu   BYTE "	    Selecione uma dificuldade para jogar:",0ah, 0dh, 0ah
 		BYTE "				1 - Facil",0ah, 0dh
 		BYTE "				2 - Dificil",0ah, 0dh
         BYTE "				ESC - SAIR",0ah, 0dh
 		BYTE "				",0
-                                                                  
- 
+		
+; Ganso
+ganso 	BYTE "     __ ",0ah,0dh  
+		BYTE "        /  >",0ah,0dh  
+		BYTE "       /  \ ",0ah,0dh  
+		BYTE " _____/   / ",0ah,0dh  
+		BYTE "<        / ",0ah,0dh  
+		BYTE " \_    _/  ",0ah,0dh  
+		BYTE "  |   |    ",0ah,0dh  
+		BYTE "  |   |    ",0ah,0dh  
+		BYTE "  ^   ^    ",0ah,0dh,0
+		
+; Ganso Agachado
+ganso_agachado 	BYTE "    __  ",0ah,0dh  
+				BYTE "       /  >",0ah,0dh  
+				BYTE " _____/  \ ",0ah,0dh  
+				BYTE "<        /  ",0ah,0dh  
+				BYTE " \_   _/   ",0ah,0dh  
+				BYTE "  |   |     ",0ah,0dh  
+				BYTE "  ^   ^     ",0ah,0dh,0
+				
+; Obstaculos
+obstaculo 	BYTE "!!!!!",0ah,0dh
+			BYTE "!   !",0ah,0dh
+			BYTE "!   !",0ah,0dh,0
+			
+obstaculo2  BYTE " /",0ah,0dh
+			BYTE "x------",0ah,0dh
+			BYTE " \ ",0ah,0dh,0
+			
 .code
 
 ;==================Desenha o menu inicial ==========================
@@ -48,7 +78,23 @@ DesenhaMenu PROC
 	call WriteString  
 	ret
 DesenhaMenu ENDP
-;=================================================
+;===================================================================
+
+;======================Desenha o Ganso==============================
+;Recebe: PosX, PosY
+;Retorna: desenho do ganso na tela
+;===================================================================
+
+DesenhaGanso PROC
+	mov eax, white
+	call SetTextColor
+	mov dl,PosX
+	mov dh,PosY
+	call GotoXY
+	mov edx, OFFSET ganso
+	call WriteString
+ret
+DesenhaGanso ENDP
 
 main PROC
 	INVOKE GetStdHandle,STD_OUTPUT_HANDLE 
@@ -68,7 +114,11 @@ EsperandoTecla:
 
 	.IF al == "1"
 		;TODO jogo fácil
-		call WriteChar
+		call Clrscr
+		mov PosX,4
+		mov PosY,10
+		call DesenhaGanso
+		;call WriteChar
 		jmp SAIR
 	.ELSEIF al == "2"
 		;TODO jogo dificil
