@@ -18,32 +18,30 @@ LARGURA = 110
 ALTURA = 30
 
 ; Logo do jogo
-logo BYTE "         ____                            _   _   _             _    _ _ ",0ah, 0dh  
-	 BYTE "	 / ___| __ _ _ __  ___  ___      / \ | |_| |_ __ _  ___| | _| | |",0ah, 0dh  
-	 BYTE "	| |  _ / _` | '_ \/ __|/ _ \    / _ \| __| __/ _` |/ __| |/ / | |",0ah, 0dh  
-	 BYTE "	| |_| | (_| | | | \__ \ (_) |  / ___ \ |_| || (_| | (__|   <|_|_|",0ah, 0dh  
-	 BYTE "	 \____|\__,_|_| |_|___/\___/  /_/   \_\__|\__\__,_|\___|_|\_(_|_)",0ah, 0dh, 0 
+logo BYTE "                      ____                            _   _   _             _    _ _ ",0ah, 0dh  
+	 BYTE "	              / ___| __ _ _ __  ___  ___      / \ | |_| |_ __ _  ___| | _| | |",0ah, 0dh  
+	 BYTE "	             | |  _ / _` | '_ \/ __|/ _ \    / _ \| __| __/ _` |/ __| |/ / | |",0ah, 0dh  
+	 BYTE "	             | |_| | (_| | | | \__ \ (_) |  / ___ \ |_| || (_| | (__|   <|_|_|",0ah, 0dh  
+	 BYTE "	              \____|\__,_|_| |_|___/\___/  /_/   \_\__|\__\__,_|\___|_|\_(_|_)",0ah, 0dh, 0 
 
 ; MENU
- menu   BYTE "	    Selecione uma dificuldade para jogar:",0ah, 0dh, 0ah
-		BYTE "				1 - Facil",0ah, 0dh
-		BYTE "				2 - Dificil",0ah, 0dh
-        BYTE "				ESC - SAIR",0ah, 0dh
+ menu   BYTE "	                  Selecione uma dificuldade para jogar:",0ah, 0dh, 0ah
+		BYTE "				              1 - Facil",0ah, 0dh
+		BYTE "				              2 - Dificil",0ah, 0dh
+        BYTE "				              ESC - SAIR",0ah, 0dh
 		BYTE "				",0
 		
-; Ganso
-ganso 	BYTE "          __ ",0ah,0dh  
-		BYTE "         /  >",0ah,0dh  
-		BYTE "        /  \ ",0ah,0dh  
-		BYTE "  _____/   / ",0ah,0dh  
-		BYTE " <        /  ",0ah,0dh  
-		BYTE "  \_    _/   ",0ah,0dh  
-		BYTE "   |   |     ",0ah,0dh  
-		BYTE "   |   |     ",0ah,0dh  
-		BYTE "   ^   ^     ",0ah,0dh,0
-
-
-		
+;Ganso
+ganso 	BYTE "                  __ ",0ah,0dh  
+		BYTE "                  /  >",0ah,0dh  
+		BYTE "                 /  \ ",0ah,0dh  
+		BYTE "           _____/   / ",0ah,0dh  
+		BYTE "          <        /  ",0ah,0dh  
+		BYTE "           \_    _/   ",0ah,0dh  
+		BYTE "            |   |     ",0ah,0dh  
+		BYTE "            |   |     ",0ah,0dh  
+		BYTE "            ^   ^     ",0ah,0dh,0
+	
 ; Ganso Agachado
 ganso_agachado 	BYTE "    __  ",0ah,0dh  
 				BYTE "       /  >",0ah,0dh  
@@ -79,7 +77,7 @@ DesenhaMenu PROC
 
 	mov eax, white
 	call SetTextColor 
-	mov dh, 14
+	mov dh, 15
 	call GotoXY
     mov edx, OFFSET menu   
 	call WriteString  
@@ -172,8 +170,8 @@ main PROC
 		;TODO jogo fácil
 		call Clrscr
 		mov eax, green
-		mov PosX,4
-		mov PosY,10
+		mov PosX,1
+		mov PosY,20	
 		call DesenhaGanso
 		call Moldura
 		jmp SAIR
