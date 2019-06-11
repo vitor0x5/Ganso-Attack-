@@ -10,12 +10,32 @@ INCLUDE Irvine32.inc
 
 outHandle    DWORD ? 
 scrSize COORD <85,50>
-PosY BYTE ?
-PosXObstaculo1 BYTE ?
 
 ;constantes utilizadas no desenho da moldura
-LARGURA = 110
-ALTURA = 30
+LARGURA = 105
+ALTURA = 29
+
+;Variáveis auxiliares para impressão e exclusão de objetos da tela
+PosY BYTE ?
+PosX BYTE ?
+larguraO BYTE ?
+alturaO BYTE ?
+
+;Tamanho dos dos desenhos
+LARGURA_OBJ1 = 5
+ALTURA_OBJ1 = 3
+LARGURA_OBJ2 = 7
+ALTURA_OBJ2 = 3
+LARGURA_GANSO = 11
+ALTURA_GANSO = 9
+ALTURA_GANSO_AGACHADO = 7
+;Posição no eixo Y dos desenhos
+Y_GANSO_EM_PE = 20
+Y_GANSO_AGACHADO = 22
+Y_OBSTACULO1 = 26
+Y_OBSTACULO2 = 19
+
+
 
 ; Logo do jogo
 logo BYTE "                      ____                            _   _   _             _    _ _ ",0ah, 0dh  
@@ -43,13 +63,13 @@ ganso 	BYTE "                  __ ",0ah,0dh
 		BYTE "            ^   ^     ",0ah,0dh,0
 	
 ; Ganso Agachado
-ganso_agachado 	BYTE "    __  ",0ah,0dh  
-				BYTE "       /  >",0ah,0dh  
-				BYTE " _____/  \ ",0ah,0dh  
-				BYTE "<        /  ",0ah,0dh  
-				BYTE " \_   _/   ",0ah,0dh  
-				BYTE "  |   |     ",0ah,0dh  
-				BYTE "  ^   ^     ",0ah,0dh,0
+ganso_agachado 	BYTE "                 __  ",0ah,0dh  
+				BYTE "                 /  >",0ah,0dh  
+				BYTE "           _____/  \ ",0ah,0dh  
+				BYTE "          <        /  ",0ah,0dh  
+				BYTE "            \_   _/   ",0ah,0dh  
+				BYTE "             |   |     ",0ah,0dh  
+				BYTE "             ^   ^     ",0ah,0dh,0
 				
 ; Obstaculos
 obstaculo1 	BYTE "!!!!!",0ah,0dh
@@ -132,56 +152,73 @@ Moldura PROC USES edx ecx
 	ret
 Moldura ENDP
 
-;======================Desenha o Ganso==============================
-;Recebe: PosX, PosY
+;======================Desenha o Ganso Em Pe =======================
+;Recebe: PosY
 ;Retorna: desenho do ganso na tela
 ;===================================================================
-DesenhaGanso PROC USES eax edx
+DesenhaGansoEmPe PROC USES eax edx
 	mov eax, white
 	call SetTextColor
 	mov dl,1
-	mov dh,PosY
+	mov dh,Y_GANSO_EM_PE
 	call GotoXY
 	mov edx, OFFSET ganso
 	call WriteString
 ret
-DesenhaGanso ENDP
+DesenhaGansoEmPe ENDP
 ;===================================================================
 
-;======================Deleta o Ganso===============================
-;Recebe:PosY
+;======================Desenha o Ganso agachado=====================
+;Recebe: PosY
+;Retorna: desenho do ganso na tela
+;===================================================================
+DesenhaGansoAgachado PROC USES eax edx
+	mov eax, white
+	call SetTextColor
+	mov dl,1
+	mov dh,Y_GANSO_AGACHADO
+	call GotoXY
+	mov edx, OFFSET ganso_agachado
+	call WriteString
+ret
+DesenhaGansoAgachado ENDP
+;===================================================================
+
+;======================Deleta Desenho===============================
+;Recebe:PosX, PosY(ganso em pé = 20, obstaculo1 = 26, obstaculo2 = 19),
+;		larguraO, alturaO
 ;Retorna:
 ;===================================================================
-DeletaGanso PROC USES edx eax ecx
-	mov dl, 10
+DeletaDesenho PROC USES edx eax ecx
+	mov dl, PosX
 	mov dh, PosY
 	call GotoXY
 	
-	mov ecx, 9   ; Nr de Linhas do Desenho
+	movzx ecx, alturaO   ; Nr de Linhas do Desenho
 	mov al, 32   ; Barra de Espaço
-LINHA:
-	push ecx
-	mov ecx, 13   ; Nr de Colunas do Desenho
-	Coluna:
-		call WriteChar
-		loop COLUNA
-	pop ecx
-	inc dh
-    call GotoXY
-loop LINHA
+	LINHA:
+		push ecx
+		movzx ecx, larguraO   ; Nr de Colunas do Desenho
+		COLUNA:
+			call WriteChar
+			loop COLUNA
+		pop ecx
+		inc dh
+		call GotoXY
+	loop LINHA
 
-ret
-DeletaGanso ENDP
+	ret
+DeletaDesenho ENDP
 
 ;=====================Desenha Obstaculo1============================
-;Recebe: PosXObstaculo1
+;Recebe: PosX
 ;Retorna: obstaculo desenhado na tela
 ;===================================================================
 DesenhaObstaculo1 PROC 
 	mov eax, brown
 	call SetTextColor
-	mov dl, PosXObstaculo1
-	mov dh, 26
+	mov dl, PosX
+	mov dh, Y_OBSTACULO1
 	mov al, "!"
 	mov ecx, 5
 	CIMA:
@@ -190,7 +227,7 @@ DesenhaObstaculo1 PROC
 		inc dl
 	loop CIMA
 	
-	mov dl, PosXObstaculo1
+	mov dl, PosX
 	mov dh, 27
 	mov ecx, 2
 	LADOS:
@@ -204,6 +241,70 @@ DesenhaObstaculo1 PROC
 	loop LADOS
 	ret
 DesenhaObstaculo1 ENDP
+;====================================================================
+
+;=====================Desenha Obstaculo2============================
+;Recebe: PosXObstaculo2
+;Retorna: obstaculo desenhado na tela
+;===================================================================
+DesenhaObstaculo2 PROC
+	mov eax, red
+	call SetTextColor
+	add PosX, 1
+	mov dl, PosX
+	mov dh, Y_OBSTACULO2
+	dec PosX
+
+	mov al, "/"
+	call GotoXY
+	call WriteChar
+
+	inc dh
+	dec dl
+	mov al, "x"
+	call GotoXY
+	call WriteChar
+
+	inc dl
+	mov al, "-"
+	mov ecx, 6
+	L1: 
+		call GotoXY
+		call WriteChar
+		inc dl
+	loop L1
+
+	inc dh
+	sub dl, 6
+	mov al, "\"
+	call GotoXY
+	call WriteChar
+	ret
+DesenhaObstaculo2 ENDP
+;====================================================================
+
+;=======================Inicializa Jogo==============================
+;Recebe: nda
+;Retorna: Tela inicial do jogo
+;====================================================================
+InicializaJogo PROC
+	call Clrscr
+	call DesenhaGansoAgachado
+	mov eax, green	;cor da moldura
+	call Moldura
+
+	;Deletando o ganso agachado
+	mov PosY, Y_GANSO_AGACHADO
+	mov PosX, 10
+	mov alturaO, ALTURA_GANSO_AGACHADO
+	mov larguraO, LARGURA_GANSO
+	call DeletaDesenho
+	
+	mov PosX, 30
+	call DesenhaObstaculo1
+	ret
+InicializaJogo ENDP
+;====================================================================
 
 main PROC
 	;INVOKE GetStdHandle,STD_OUTPUT_HANDLE 
@@ -225,14 +326,7 @@ main PROC
 
 	.IF al == "1"
 		;TODO jogo fácil
-		call Clrscr
-		mov eax, green
-		mov PosY,20	
-		call DesenhaGanso
-		call DeletaGanso
-		call Moldura
-		mov PosXObstaculo1, 30
-		call DesenhaObstaculo1
+		call InicializaJogo
 		jmp SAIR
 	.ELSEIF al == "2"
 		;TODO jogo dificil
