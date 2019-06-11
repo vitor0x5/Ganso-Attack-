@@ -10,8 +10,8 @@ INCLUDE Irvine32.inc
 
 outHandle    DWORD ? 
 scrSize COORD <85,50>
-PosX BYTE ?
 PosY BYTE ?
+PosXObstaculo1 BYTE ?
 
 ;constantes utilizadas no desenho da moldura
 LARGURA = 110
@@ -52,7 +52,7 @@ ganso_agachado 	BYTE "    __  ",0ah,0dh
 				BYTE "  ^   ^     ",0ah,0dh,0
 				
 ; Obstaculos
-obstaculo 	BYTE "!!!!!",0ah,0dh
+obstaculo1 	BYTE "!!!!!",0ah,0dh
 			BYTE "!   !",0ah,0dh
 			BYTE "!   !",0ah,0dh,0
 			
@@ -139,7 +139,7 @@ Moldura ENDP
 DesenhaGanso PROC USES eax edx
 	mov eax, white
 	call SetTextColor
-	mov dl,PosX
+	mov dl,1
 	mov dh,PosY
 	call GotoXY
 	mov edx, OFFSET ganso
@@ -147,6 +147,63 @@ DesenhaGanso PROC USES eax edx
 ret
 DesenhaGanso ENDP
 ;===================================================================
+
+;======================Deleta o Ganso===============================
+;Recebe:PosY
+;Retorna:
+;===================================================================
+DeletaGanso PROC USES edx eax ecx
+	mov dl, 10
+	mov dh, PosY
+	call GotoXY
+	
+	mov ecx, 9   ; Nr de Linhas do Desenho
+	mov al, 32   ; Barra de Espaço
+LINHA:
+	push ecx
+	mov ecx, 13   ; Nr de Colunas do Desenho
+	Coluna:
+		call WriteChar
+		loop COLUNA
+	pop ecx
+	inc dh
+    call GotoXY
+loop LINHA
+
+ret
+DeletaGanso ENDP
+
+;=====================Desenha Obstaculo1============================
+;Recebe: PosXObstaculo1
+;Retorna: obstaculo desenhado na tela
+;===================================================================
+DesenhaObstaculo1 PROC 
+	mov eax, brown
+	call SetTextColor
+	mov dl, PosXObstaculo1
+	mov dh, 26
+	mov al, "!"
+	mov ecx, 5
+	CIMA:
+		call GotoXY
+		call WriteChar
+		inc dl
+	loop CIMA
+	
+	mov dl, PosXObstaculo1
+	mov dh, 27
+	mov ecx, 2
+	LADOS:
+		call GotoXY
+		call WriteChar
+		add dl, 4
+		call GotoXY
+		call WriteChar
+		sub dl, 4
+		inc dh
+	loop LADOS
+	ret
+DesenhaObstaculo1 ENDP
 
 main PROC
 	;INVOKE GetStdHandle,STD_OUTPUT_HANDLE 
@@ -170,10 +227,12 @@ main PROC
 		;TODO jogo fácil
 		call Clrscr
 		mov eax, green
-		mov PosX,1
 		mov PosY,20	
 		call DesenhaGanso
+		call DeletaGanso
 		call Moldura
+		mov PosXObstaculo1, 30
+		call DesenhaObstaculo1
 		jmp SAIR
 	.ELSEIF al == "2"
 		;TODO jogo dificil
@@ -186,6 +245,8 @@ main PROC
 	
 	jmp   EsperandoTecla    ; nenhuma tecla válida pressionada, tenta novamente
 SAIR:
+	mov dh, 80
+	call GotoXY
 	exit
 main ENDP
 END main
