@@ -21,7 +21,7 @@ PosX BYTE ?
 larguraO BYTE ?
 alturaO BYTE ?
 
-;Tamanho dos dos desenhos
+;Tamanho dos desenhos
 LARGURA_OBJ1 = 5
 ALTURA_OBJ1 = 3
 LARGURA_OBJ2 = 7
@@ -34,8 +34,6 @@ Y_GANSO_EM_PE = 20
 Y_GANSO_AGACHADO = 22
 Y_OBSTACULO1 = 26
 Y_OBSTACULO2 = 19
-
-
 
 ; Logo do jogo
 logo BYTE "                      ____                            _   _   _             _    _ _ ",0ah, 0dh  
@@ -52,24 +50,24 @@ logo BYTE "                      ____                            _   _   _      
 		BYTE "				",0
 		
 ;Ganso
-ganso 	BYTE "                  __ ",0ah,0dh  
-		BYTE "                  /  >",0ah,0dh  
-		BYTE "                 /  \ ",0ah,0dh  
-		BYTE "           _____/   / ",0ah,0dh  
-		BYTE "          <        /  ",0ah,0dh  
-		BYTE "           \_    _/   ",0ah,0dh  
-		BYTE "            |   |     ",0ah,0dh  
-		BYTE "            |   |     ",0ah,0dh  
-		BYTE "            ^   ^     ",0ah,0dh,0
+ganso 	BYTE "                        __ ",0ah,0dh  
+		BYTE "                        /  >",0ah,0dh  
+		BYTE "                       /  \ ",0ah,0dh  
+		BYTE "                 _____/   / ",0ah,0dh  
+		BYTE "                <        /  ",0ah,0dh  
+		BYTE "                 \_    _/   ",0ah,0dh  
+		BYTE "                   |   |     ",0ah,0dh  
+		BYTE "                   |   |     ",0ah,0dh  
+		BYTE "                   ^   ^     ",0ah,0dh,0
 	
 ; Ganso Agachado
-ganso_agachado 	BYTE "                 __  ",0ah,0dh  
-				BYTE "                 /  >",0ah,0dh  
-				BYTE "           _____/  \ ",0ah,0dh  
-				BYTE "          <        /  ",0ah,0dh  
-				BYTE "            \_   _/   ",0ah,0dh  
-				BYTE "             |   |     ",0ah,0dh  
-				BYTE "             ^   ^     ",0ah,0dh,0
+ganso_agachado 	BYTE "                      __  ",0ah,0dh  
+				BYTE "                      /  >",0ah,0dh  
+				BYTE "                _____/  \ ",0ah,0dh  
+				BYTE "               <        /  ",0ah,0dh  
+				BYTE "                 \_   _/   ",0ah,0dh  
+				BYTE "                  |   |     ",0ah,0dh  
+				BYTE "                  ^   ^     ",0ah,0dh,0
 				
 ; Obstaculos
 obstaculo1 	BYTE "!!!!!",0ah,0dh
@@ -79,9 +77,26 @@ obstaculo1 	BYTE "!!!!!",0ah,0dh
 obstaculo2  BYTE " /",0ah,0dh
 			BYTE "x------",0ah,0dh
 			BYTE " \ ",0ah,0dh,0
-			
-.code
 
+nuvem   BYTE "		                                         ____     ____        ",0ah,0dh 
+    	BYTE "	                                              __/    \___/    \____   ",0ah,0dh 
+       	BYTE "	                                             /                     \  ",0ah,0dh 
+   		BYTE "                                                    |                       \ ",0ah,0dh 
+    	BYTE "	                                             \___      __         __| ",0ah,0dh 
+        BYTE "	                                                 \____/  \       /    ",0ah,0dh 
+        BYTE " 			                                          \_____/     ",0 
+
+
+
+sol     BYTE"          \     /      ",0ah,0dh 
+        BYTE"            \___/       ",0ah,0dh
+        BYTE"           /     \      ",0ah,0dh
+        BYTE"      ____|       |____ ",0ah,0dh
+        BYTE"           \ ___ /      ",0ah,0dh
+        BYTE"           /     \      ",0ah,0dh
+        BYTE"          /       \     ",0
+
+.code
 ;==================Desenha o menu inicial ==========================
 ;Recebe: nda
 ;Retorna: Desenho do menu na tela
@@ -201,7 +216,7 @@ DeletaDesenho PROC USES edx eax ecx
 		movzx ecx, larguraO   ; Nr de Colunas do Desenho
 		COLUNA:
 			call WriteChar
-			loop COLUNA
+		loop COLUNA
 		pop ecx
 		inc dh
 		call GotoXY
@@ -283,22 +298,49 @@ DesenhaObstaculo2 PROC
 DesenhaObstaculo2 ENDP
 ;====================================================================
 
+;=========================Desenha Céu===============================
+;Recebe: nda
+;Retorna: dsenho do ceu do jogo na tela
+;===================================================================
+DesenhaCeu PROC 
+	;SOL
+	mov eax, yellow
+	call SetTextColor
+	mov dl, 1
+	mov dh, 3
+	call GotoXY
+	mov edx, OFFSET sol
+	call WriteString
+	;NUVEM
+	mov eax, white
+	call SetTextColor
+	mov dl, 1
+	mov dh, 10
+	call GotoXY
+	mov edx, OFFSET nuvem
+	call WriteString
+	ret
+DesenhaCeu ENDP
+;==================================================================
+
 ;=======================Inicializa Jogo==============================
 ;Recebe: nda
 ;Retorna: Tela inicial do jogo
 ;====================================================================
 InicializaJogo PROC
 	call Clrscr
-	call DesenhaGansoAgachado
+	call DesenhaGansoEmPE
+	call DesenhaCeu
 	mov eax, green	;cor da moldura
 	call Moldura
+	
 
 	;Deletando o ganso agachado
-	mov PosY, Y_GANSO_AGACHADO
-	mov PosX, 10
-	mov alturaO, ALTURA_GANSO_AGACHADO
-	mov larguraO, LARGURA_GANSO
-	call DeletaDesenho
+	;mov PosY, Y_GANSO_AGACHADO
+	;mov PosX, 10
+	;mov alturaO, ALTURA_GANSO_AGACHADO
+	;mov larguraO, LARGURA_GANSO
+	;call DeletaDesenho
 	
 	mov PosX, 30
 	call DesenhaObstaculo1
@@ -339,7 +381,7 @@ main PROC
 	
 	jmp   EsperandoTecla    ; nenhuma tecla válida pressionada, tenta novamente
 SAIR:
-	mov dh, 80
+	mov dh, 40
 	call GotoXY
 	exit
 main ENDP
