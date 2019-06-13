@@ -1,4 +1,4 @@
-Microsoft (R) Macro Assembler Version 14.16.27030.1	    06/13/19 00:44:08
+Microsoft (R) Macro Assembler Version 14.16.27027.1	    06/13/19 01:28:42
 jogo.asm						     Page 1 - 1
 
 
@@ -31,44 +31,46 @@ jogo.asm						     Page 1 - 1
 
  00000000 00000000		outHandle    DWORD ? 
  00000004 0055 0032		scrSize COORD <85,50>
+ 00000008 00000000		contadorTempo DWORD 0
 
 				;constantes utilizadas no desenho da moldura
  = 00000069			LARGURA = 105
  = 0000001D			ALTURA = 29
 
 				;Variáveis auxiliares para impressão e exclusão de objetos da tela
- 00000008 00			PosY BYTE ?
- 00000009 00			PosX BYTE ?
- 0000000A 00			larguraO BYTE ?
- 0000000B 00			alturaO BYTE ?
+ 0000000C 00			PosY BYTE ?
+ 0000000D 00			PosX BYTE ?
+ 0000000E 00			larguraO BYTE ?
+ 0000000F 00			alturaO BYTE ?
 
 				;Tamanho dos desenhos
  = 00000005			LARGURA_OBJ1 = 5
  = 00000003			ALTURA_OBJ1 = 3
  = 00000007			LARGURA_OBJ2 = 7
  = 00000003			ALTURA_OBJ2 = 3
- = 0000000B			LARGURA_GANSO = 11
+ = 0000000C			LARGURA_GANSO = 12
  = 00000009			ALTURA_GANSO = 9
  = 00000007			ALTURA_GANSO_AGACHADO = 7
 				;Posição no eixo Y dos desenhos
  = 00000014			Y_GANSO_EM_PE = 20
+ = 0000000F			Y_GANSO_PULANDO =  15
  = 00000016			Y_GANSO_AGACHADO = 22
  = 0000001A			Y_OBSTACULO1 = 26
  = 00000013			Y_OBSTACULO2 = 19
 
 				;Fila de posição dos obstáculos
- 0000000C  00000007 [		PosObs1 BYTE 7 DUP(?)
+ 00000010  00000007 [		PosObs1 BYTE 7 DUP(?)
 	    00
 	   ]
- 00000013  00000007 [		PosObs2 BYTE 7 DUP(?)
+ 00000017  00000007 [		PosObs2 BYTE 7 DUP(?)
 	    00
 	   ]
- 0000001A 00			CtrlObs1 BYTE 0			;posições atuais da fila
- 0000001B 00			CtrlObs2 BYTE 0
+ 0000001E 00			CtrlObs1 BYTE 0			;posições atuais da fila
+ 0000001F 00			CtrlObs2 BYTE 0
 
 
 				; Logo do jogo
- 0000001C 20 20 20 20 20	logo BYTE "                      ____                            _   _   _             _    _ _ ",0ah, 0dh  
+ 00000020 20 20 20 20 20	logo BYTE "                      ____                            _   _   _             _    _ _ ",0ah, 0dh  
 	   20 20 20 20 20
 	   20 20 20 20 20
 	   20 20 20 20 20
@@ -86,7 +88,7 @@ jogo.asm						     Page 1 - 1
 	   20 5F 20 20 20
 	   20 5F 20 5F 20
 	   0A 0D
- 00000073  09 20 20 20 20		 BYTE "	              / ___| __ _ _ __  ___  ___      / \ | |_| |_ __ _  ___| | _| | |",0ah, 0dh  
+ 00000077  09 20 20 20 20		 BYTE "	              / ___| __ _ _ __  ___  ___      / \ | |_| |_ __ _  ___| | _| | |",0ah, 0dh  
 	   20 20 20 20 20
 	   20 20 20 20 20
 	   2F 20 5F 5F 5F
@@ -103,7 +105,7 @@ jogo.asm						     Page 1 - 1
 	   20 7C 20 5F 7C
 	   20 7C 20 7C 0A
 	   0D
- 000000C4  09 20 20 20 20		 BYTE "	             | |  _ / _` | '_ \/ __|/ _ \    / _ \| __| __/ _` |/ __| |/ / | |",0ah, 0dh  
+ 000000C8  09 20 20 20 20		 BYTE "	             | |  _ / _` | '_ \/ __|/ _ \    / _ \| __| __/ _` |/ __| |/ / | |",0ah, 0dh  
 	   20 20 20 20 20
 	   20 20 20 20 7C
 	   20 7C 20 20 5F
@@ -120,7 +122,7 @@ jogo.asm						     Page 1 - 1
 	   20 7C 2F 20 2F
 	   20 7C 20 7C 0A
 	   0D
- 00000115  09 20 20 20 20		 BYTE "	             | |_| | (_| | | | \__ \ (_) |  / ___ \ |_| || (_| | (__|   <|_|_|",0ah, 0dh  
+ 00000119  09 20 20 20 20		 BYTE "	             | |_| | (_| | | | \__ \ (_) |  / ___ \ |_| || (_| | (__|   <|_|_|",0ah, 0dh  
 	   20 20 20 20 20
 	   20 20 20 20 7C
 	   20 7C 5F 7C 20
@@ -137,7 +139,7 @@ jogo.asm						     Page 1 - 1
 	   20 20 20 3C 7C
 	   5F 7C 5F 7C 0A
 	   0D
- 00000166  09 20 20 20 20		 BYTE "	              \____|\__,_|_| |_|___/\___/  /_/   \_\__|\__\__,_|\___|_|\_(_|_)",0ah, 0dh, 0 
+ 0000016A  09 20 20 20 20		 BYTE "	              \____|\__,_|_| |_|___/\___/  /_/   \_\__|\__\__,_|\___|_|\_(_|_)",0ah, 0dh, 0 
 	   20 20 20 20 20
 	   20 20 20 20 20
 	   5C 5F 5F 5F 5F
@@ -156,7 +158,7 @@ jogo.asm						     Page 1 - 1
 	   0D 00
 
 				; MENU
- 000001B8 09 20 20 20 20	 menu   BYTE "	                  Selecione uma dificuldade para jogar:",0ah, 0dh, 0ah
+ 000001BC 09 20 20 20 20	 menu   BYTE "	                  Selecione uma dificuldade para jogar:",0ah, 0dh, 0ah
 	   20 20 20 20 20
 	   20 20 20 20 20
 	   20 20 20 20 53
@@ -168,79 +170,79 @@ jogo.asm						     Page 1 - 1
 	   70 61 72 61 20
 	   6A 6F 67 61 72
 	   3A 0A 0D 0A
- 000001F3  09 09 09 09 20			BYTE "				              1 - Facil",0ah, 0dh
+ 000001F7  09 09 09 09 20			BYTE "				              1 - Facil",0ah, 0dh
 	   20 20 20 20 20
 	   20 20 20 20 20
 	   20 20 20 31 20
 	   2D 20 46 61 63
 	   69 6C 0A 0D
- 00000210  09 09 09 09 20			BYTE "				              2 - Dificil",0ah, 0dh
+ 00000214  09 09 09 09 20			BYTE "				              2 - Dificil",0ah, 0dh
 	   20 20 20 20 20
 	   20 20 20 20 20
 	   20 20 20 32 20
 	   2D 20 44 69 66
 	   69 63 69 6C 0A
 	   0D
- 0000022F  09 09 09 09 20	        BYTE "				              ESC - SAIR",0ah, 0dh
+ 00000233  09 09 09 09 20	        BYTE "				              ESC - SAIR",0ah, 0dh
 	   20 20 20 20 20
 	   20 20 20 20 20
 	   20 20 20 45 53
 	   43 20 2D 20 53
 	   41 49 52 0A 0D
- 0000024D  09 09 09 09 00			BYTE "				",0
+ 00000251  09 09 09 09 00			BYTE "				",0
 						
 				;Ganso
- 00000252 20 20 20 20 20	ganso 	BYTE "                        __ ",0ah,0dh  
+ 00000256 20 20 20 20 20	ganso 	BYTE "                        __ ",0ah,0dh  
 	   20 20 20 20 20
 	   20 20 20 20 20
 	   20 20 20 20 20
 	   20 20 20 20 5F
 	   5F 20 0A 0D
- 0000026F  20 20 20 20 20			BYTE "                        /  >",0ah,0dh  
+ 00000273  20 20 20 20 20			BYTE "                        /  >",0ah,0dh  
 	   20 20 20 20 20
 	   20 20 20 20 20
 	   20 20 20 20 20
 	   20 20 20 20 2F
 	   20 20 3E 0A 0D
- 0000028D  20 20 20 20 20			BYTE "                       /  \ ",0ah,0dh  
+ 00000291  20 20 20 20 20			BYTE "                       /  \ ",0ah,0dh  
 	   20 20 20 20 20
 	   20 20 20 20 20
 	   20 20 20 20 20
 	   20 20 20 2F 20
 	   20 5C 20 0A 0D
- 000002AB  20 20 20 20 20			BYTE "                 _____/   / ",0ah,0dh  
+ 000002AF  20 20 20 20 20			BYTE "                 _____/   / ",0ah,0dh  
 	   20 20 20 20 20
 	   20 20 20 20 20
 	   20 20 5F 5F 5F
 	   5F 5F 2F 20 20
 	   20 2F 20 0A 0D
- 000002C9  20 20 20 20 20			BYTE "                <        /  ",0ah,0dh  
+ 000002CD  20 20 20 20 20			BYTE "                <        /  ",0ah,0dh  
 	   20 20 20 20 20
 	   20 20 20 20 20
 	   20 3C 20 20 20
 	   20 20 20 20 20
 	   2F 20 20 0A 0D
- 000002E7  20 20 20 20 20			BYTE "                 \_    _/   ",0ah,0dh  
+ 000002EB  20 20 20 20 20			BYTE "                 \_    _/   ",0ah,0dh  
 	   20 20 20 20 20
 	   20 20 20 20 20
 	   20 20 5C 5F 20
 	   20 20 20 5F 2F
 	   20 20 20 0A 0D
- 00000305  20 20 20 20 20			BYTE "                   |   |     ",0ah,0dh  
+ 00000309  20 20 20 20 20			BYTE "                   |   |     ",0ah,0dh  
 	   20 20 20 20 20
 	   20 20 20 20 20
 	   20 20 20 20 7C
 	   20 20 20 7C 20
 	   20 20 20 20 0A
 	   0D
- 00000324  20 20 20 20 20			BYTE "                   |   |     ",0ah,0dh  
+ 00000328  20 20 20 20 20			BYTE "                   |   |     ",0ah,0dh  
 	   20 20 20 20 20
 	   20 20 20 20 20
 	   20 20 20 20 7C
 	   20 20 20 7C 20
 	   20 20 20 20 0A
 	   0D
- 00000343  20 20 20 20 20			BYTE "                   ^   ^     ",0ah,0dh,0
+ 00000347  20 20 20 20 20			BYTE "                   ^   ^     ",0ah,0dh,0
 	   20 20 20 20 20
 	   20 20 20 20 20
 	   20 20 20 20 5E
@@ -249,43 +251,43 @@ jogo.asm						     Page 1 - 1
 	   0D 00
 					
 				; Ganso Agachado
- 00000363 20 20 20 20 20	ganso_agachado 	BYTE "                      __  ",0ah,0dh  
+ 00000367 20 20 20 20 20	ganso_agachado 	BYTE "                      __  ",0ah,0dh  
 	   20 20 20 20 20
 	   20 20 20 20 20
 	   20 20 20 20 20
 	   20 20 5F 5F 20
 	   20 0A 0D
- 0000037F  20 20 20 20 20					BYTE "                      /  >",0ah,0dh  
+ 00000383  20 20 20 20 20					BYTE "                      /  >",0ah,0dh  
 	   20 20 20 20 20
 	   20 20 20 20 20
 	   20 20 20 20 20
 	   20 20 2F 20 20
 	   3E 0A 0D
- 0000039B  20 20 20 20 20					BYTE "                _____/  \ ",0ah,0dh  
+ 0000039F  20 20 20 20 20					BYTE "                _____/  \ ",0ah,0dh  
 	   20 20 20 20 20
 	   20 20 20 20 20
 	   20 5F 5F 5F 5F
 	   5F 2F 20 20 5C
 	   20 0A 0D
- 000003B7  20 20 20 20 20					BYTE "               <        /  ",0ah,0dh  
+ 000003BB  20 20 20 20 20					BYTE "               <        /  ",0ah,0dh  
 	   20 20 20 20 20
 	   20 20 20 20 20
 	   3C 20 20 20 20
 	   20 20 20 20 2F
 	   20 20 0A 0D
- 000003D4  20 20 20 20 20					BYTE "                 \_   _/   ",0ah,0dh  
+ 000003D8  20 20 20 20 20					BYTE "                 \_   _/   ",0ah,0dh  
 	   20 20 20 20 20
 	   20 20 20 20 20
 	   20 20 5C 5F 20
 	   20 20 5F 2F 20
 	   20 20 0A 0D
- 000003F1  20 20 20 20 20					BYTE "                  |   |     ",0ah,0dh  
+ 000003F5  20 20 20 20 20					BYTE "                  |   |     ",0ah,0dh  
 	   20 20 20 20 20
 	   20 20 20 20 20
 	   20 20 20 7C 20
 	   20 20 7C 20 20
 	   20 20 20 0A 0D
- 0000040F  20 20 20 20 20					BYTE "                  ^   ^     ",0ah,0dh,0
+ 00000413  20 20 20 20 20					BYTE "                  ^   ^     ",0ah,0dh,0
 	   20 20 20 20 20
 	   20 20 20 20 20
 	   20 20 20 5E 20
@@ -294,20 +296,20 @@ jogo.asm						     Page 1 - 1
 	   00
 								
 				; Obstaculos
- 0000042E 21 21 21 21 21	obstaculo1 	BYTE "!!!!!",0ah,0dh
+ 00000432 21 21 21 21 21	obstaculo1 	BYTE "!!!!!",0ah,0dh
 	   0A 0D
- 00000435  21 20 20 20 21				BYTE "!   !",0ah,0dh
+ 00000439  21 20 20 20 21				BYTE "!   !",0ah,0dh
 	   0A 0D
- 0000043C  21 20 20 20 21				BYTE "!   !",0ah,0dh,0
+ 00000440  21 20 20 20 21				BYTE "!   !",0ah,0dh,0
 	   0A 0D 00
 							
- 00000444 20 2F 0A 0D		obstaculo2  BYTE " /",0ah,0dh
- 00000448  78 2D 2D 2D 2D				BYTE "x------",0ah,0dh
-	   2D 2D 0A 0D
- 00000451  20 5C 20 0A 0D				BYTE " \ ",0ah,0dh,0
+ 00000448 20 2F 0A 0D		obstaculo2  BYTE " /",0ah,0dh
+ 0000044C  78 2D 2D 2D 2D				BYTE "x----",0ah,0dh
+	   0A 0D
+ 00000453  20 5C 20 0A 0D				BYTE " \ ",0ah,0dh,0
 	   00
 
- 00000457 09 09 20 20 20	nuvem   BYTE "		                                         ____     ____        ",0ah,0dh 
+ 00000459 09 09 20 20 20	nuvem   BYTE "		                                         ____     ____        ",0ah,0dh 
 	   20 20 20 20 20
 	   20 20 20 20 20
 	   20 20 20 20 20
@@ -321,7 +323,7 @@ jogo.asm						     Page 1 - 1
 	   5F 20 20 20 20
 	   20 20 20 20 0A
 	   0D
- 00000499  09 20 20 20 20	    	BYTE "	                                              __/    \___/    \____   ",0ah,0dh 
+ 0000049B  09 20 20 20 20	    	BYTE "	                                              __/    \___/    \____   ",0ah,0dh 
 	   20 20 20 20 20
 	   20 20 20 20 20
 	   20 20 20 20 20
@@ -336,7 +338,7 @@ jogo.asm						     Page 1 - 1
 	   20 20 20 5C 5F
 	   5F 5F 5F 20 20
 	   20 0A 0D
- 000004E2  09 20 20 20 20	       	BYTE "	                                             /                     \  ",0ah,0dh 
+ 000004E4  09 20 20 20 20	       	BYTE "	                                             /                     \  ",0ah,0dh 
 	   20 20 20 20 20
 	   20 20 20 20 20
 	   20 20 20 20 20
@@ -351,7 +353,7 @@ jogo.asm						     Page 1 - 1
 	   20 20 20 20 20
 	   20 20 20 5C 20
 	   20 0A 0D
- 0000052B  20 20 20 20 20	   		BYTE "                                                    |                       \ ",0ah,0dh 
+ 0000052D  20 20 20 20 20	   		BYTE "                                                    |                       \ ",0ah,0dh 
 	   20 20 20 20 20
 	   20 20 20 20 20
 	   20 20 20 20 20
@@ -367,7 +369,7 @@ jogo.asm						     Page 1 - 1
 	   20 20 20 20 20
 	   20 20 20 20 20
 	   20 5C 20 0A 0D
- 0000057B  09 20 20 20 20	    	BYTE "	                                             \___      __         __| ",0ah,0dh 
+ 0000057D  09 20 20 20 20	    	BYTE "	                                             \___      __         __| ",0ah,0dh 
 	   20 20 20 20 20
 	   20 20 20 20 20
 	   20 20 20 20 20
@@ -382,7 +384,7 @@ jogo.asm						     Page 1 - 1
 	   20 20 20 20 20
 	   20 20 5F 5F 7C
 	   20 0A 0D
- 000005C4  09 20 20 20 20	        BYTE "	                                                 \____/  \       /    ",0ah,0dh 
+ 000005C6  09 20 20 20 20	        BYTE "	                                                 \____/  \       /    ",0ah,0dh 
 	   20 20 20 20 20
 	   20 20 20 20 20
 	   20 20 20 20 20
@@ -397,7 +399,7 @@ jogo.asm						     Page 1 - 1
 	   20 20 20 20 20
 	   20 2F 20 20 20
 	   20 0A 0D
- 0000060D  20 09 09 09 20	        BYTE " 			                                          \_____/     ",0 
+ 0000060F  20 09 09 09 20	        BYTE " 			                                          \_____/     ",0 
 	   20 20 20 20 20
 	   20 20 20 20 20
 	   20 20 20 20 20
@@ -412,42 +414,42 @@ jogo.asm						     Page 1 - 1
 
 
 
- 00000648 20 20 20 20 20	sol     BYTE"          \     /      ",0ah,0dh 
+ 0000064A 20 20 20 20 20	sol     BYTE"          \     /      ",0ah,0dh 
 	   20 20 20 20 20
 	   5C 20 20 20 20
 	   20 2F 20 20 20
 	   20 20 20 0A 0D
- 00000661  20 20 20 20 20	        BYTE"            \___/       ",0ah,0dh
+ 00000663  20 20 20 20 20	        BYTE"            \___/       ",0ah,0dh
 	   20 20 20 20 20
 	   20 20 5C 5F 5F
 	   5F 2F 20 20 20
 	   20 20 20 20 0A
 	   0D
- 0000067B  20 20 20 20 20	        BYTE"           /     \      ",0ah,0dh
+ 0000067D  20 20 20 20 20	        BYTE"           /     \      ",0ah,0dh
 	   20 20 20 20 20
 	   20 2F 20 20 20
 	   20 20 5C 20 20
 	   20 20 20 20 0A
 	   0D
- 00000695  20 20 20 20 20	        BYTE"      ____|       |____ ",0ah,0dh
+ 00000697  20 20 20 20 20	        BYTE"      ____|       |____ ",0ah,0dh
 	   20 5F 5F 5F 5F
 	   7C 20 20 20 20
 	   20 20 20 7C 5F
 	   5F 5F 5F 20 0A
 	   0D
- 000006AF  20 20 20 20 20	        BYTE"           \ ___ /      ",0ah,0dh
+ 000006B1  20 20 20 20 20	        BYTE"           \ ___ /      ",0ah,0dh
 	   20 20 20 20 20
 	   20 5C 20 5F 5F
 	   5F 20 2F 20 20
 	   20 20 20 20 0A
 	   0D
- 000006C9  20 20 20 20 20	        BYTE"           /     \      ",0ah,0dh
+ 000006CB  20 20 20 20 20	        BYTE"           /     \      ",0ah,0dh
 	   20 20 20 20 20
 	   20 2F 20 20 20
 	   20 20 5C 20 20
 	   20 20 20 20 0A
 	   0D
- 000006E3  20 20 20 20 20	        BYTE"          /       \     ",0
+ 000006E5  20 20 20 20 20	        BYTE"          /       \     ",0
 	   20 20 20 20 20
 	   2F 20 20 20 20
 	   20 20 20 5C 20
@@ -464,14 +466,14 @@ jogo.asm						     Page 1 - 1
  0000000A  B2 01			mov dl, 1
  0000000C  B6 06			mov dh, 6
  0000000E  E8 00000000 E		call GotoXY
- 00000013  BA 0000001C R		mov edx, OFFSET logo
+ 00000013  BA 00000020 R		mov edx, OFFSET logo
  00000018  E8 00000000 E	    call WriteString
 
  0000001D  B8 0000000F			mov eax, white
  00000022  E8 00000000 E		call SetTextColor 
  00000027  B6 0F			mov dh, 15
  00000029  E8 00000000 E		call GotoXY
- 0000002E  BA 000001B8 R	    mov edx, OFFSET menu   
+ 0000002E  BA 000001BC R	    mov edx, OFFSET menu   
  00000033  E8 00000000 E		call WriteString  
  00000038  C3				ret
  00000039			DesenhaMenu ENDP
@@ -541,7 +543,7 @@ jogo.asm						     Page 1 - 1
  000000A1  B2 01			mov dl,1
  000000A3  B6 14			mov dh,Y_GANSO_EM_PE
  000000A5  E8 00000000 E		call GotoXY
- 000000AA  BA 00000252 R		mov edx, OFFSET ganso
+ 000000AA  BA 00000256 R		mov edx, OFFSET ganso
  000000AF  E8 00000000 E		call WriteString
 				ret
  000000B4  5A		   *	    pop    edx
@@ -562,7 +564,7 @@ jogo.asm						     Page 1 - 1
  000000C3  B2 01			mov dl,1
  000000C5  B6 16			mov dh,Y_GANSO_AGACHADO
  000000C7  E8 00000000 E		call GotoXY
- 000000CC  BA 00000363 R		mov edx, OFFSET ganso_agachado
+ 000000CC  BA 00000367 R		mov edx, OFFSET ganso_agachado
  000000D1  E8 00000000 E		call WriteString
 				ret
  000000D6  5A		   *	    pop    edx
@@ -580,17 +582,17 @@ jogo.asm						     Page 1 - 1
  000000D9  52		   *	    push   edx
  000000DA  50		   *	    push   eax
  000000DB  51		   *	    push   ecx
- 000000DC  8A 15 00000009 R		mov dl, PosX
- 000000E2  8A 35 00000008 R		mov dh, PosY
+ 000000DC  8A 15 0000000D R		mov dl, PosX
+ 000000E2  8A 35 0000000C R		mov dh, PosY
  000000E8  E8 00000000 E		call GotoXY
 					
  000000ED  0F B6 0D			movzx ecx, alturaO   ; Nr de Linhas do Desenho
-	   0000000B R
+	   0000000F R
  000000F4  B0 20			mov al, 32   ; Barra de Espaço
  000000F6				LINHA:
  000000F6  51					push ecx
  000000F7  0F B6 0D				movzx ecx, larguraO   ; Nr de Colunas do Desenho
-	   0000000A R
+	   0000000E R
  000000FE					COLUNA:
  000000FE  E8 00000000 E				call WriteChar
  00000103  E2 F9				loop COLUNA
@@ -613,7 +615,7 @@ jogo.asm						     Page 1 - 1
  00000113			DesenhaObstaculo1 PROC 
  00000113  B8 00000006			mov eax, brown
  00000118  E8 00000000 E		call SetTextColor
- 0000011D  8A 15 00000009 R		mov dl, PosX
+ 0000011D  8A 15 0000000D R		mov dl, PosX
  00000123  B6 1A			mov dh, Y_OBSTACULO1
  00000125  B0 21			mov al, "!"
  00000127  B9 00000005			mov ecx, 5
@@ -623,7 +625,7 @@ jogo.asm						     Page 1 - 1
  00000136  FE C2				inc dl
  00000138  E2 F2			loop CIMA
 					
- 0000013A  8A 15 00000009 R		mov dl, PosX
+ 0000013A  8A 15 0000000D R		mov dl, PosX
  00000140  B6 1B			mov dh, 27
  00000142  B9 00000002			mov ecx, 2
  00000147				LADOS:
@@ -646,11 +648,11 @@ jogo.asm						     Page 1 - 1
  00000166			DesenhaObstaculo2 PROC
  00000166  B8 00000004			mov eax, red
  0000016B  E8 00000000 E		call SetTextColor
- 00000170  80 05 00000009 R		add PosX, 1
+ 00000170  80 05 0000000D R		add PosX, 1
 	   01
- 00000177  8A 15 00000009 R		mov dl, PosX
+ 00000177  8A 15 0000000D R		mov dl, PosX
  0000017D  B6 13			mov dh, Y_OBSTACULO2
- 0000017F  FE 0D 00000009 R		dec PosX
+ 0000017F  FE 0D 0000000D R		dec PosX
 
  00000185  B0 2F			mov al, "/"
  00000187  E8 00000000 E		call GotoXY
@@ -691,7 +693,7 @@ jogo.asm						     Page 1 - 1
  000001D4  B2 01			mov dl, 1
  000001D6  B6 03			mov dh, 3
  000001D8  E8 00000000 E		call GotoXY
- 000001DD  BA 00000648 R		mov edx, OFFSET sol
+ 000001DD  BA 0000064A R		mov edx, OFFSET sol
  000001E2  E8 00000000 E		call WriteString
 					;NUVEM
  000001E7  B8 0000000F			mov eax, white
@@ -699,7 +701,7 @@ jogo.asm						     Page 1 - 1
  000001F1  B2 01			mov dl, 1
  000001F3  B6 0A			mov dh, 10
  000001F5  E8 00000000 E		call GotoXY
- 000001FA  BA 00000457 R		mov edx, OFFSET nuvem
+ 000001FA  BA 00000459 R		mov edx, OFFSET nuvem
  000001FF  E8 00000000 E		call WriteString
  00000204  C3				ret
  00000205			DesenhaCeu ENDP
@@ -737,28 +739,28 @@ jogo.asm						     Page 1 - 1
 					.IF al == 1
  00000238  3C 01	   *	    cmp    al, 001h
  0000023A  75 24	   *	    jne    @C0001
- 0000023C  C6 05 00000009 R			mov PosX, 100
+ 0000023C  C6 05 0000000D R			mov PosX, 100
 	   64
  00000243  E8 FFFFFECB				call DesenhaObstaculo1
  00000248  0F B6 1D				movzx ebx, CtrlObs1
-	   0000001A R
- 0000024F  C6 83 0000000C R			mov PosObs1[ebx], 100
+	   0000001E R
+ 0000024F  C6 83 00000010 R			mov PosObs1[ebx], 100
 	   64
- 00000256  FE 05 0000001A R			inc CtrlObs1
+ 00000256  FE 05 0000001E R			inc CtrlObs1
  0000025C  EB 28				jmp FIM
 					.ELSEIF al == 2
  0000025E  EB 26	   *	    jmp    @C0003
  00000260		   *@C0001:
  00000260  3C 02	   *	    cmp    al, 002h
  00000262  75 22	   *	    jne    @C0004
- 00000264  C6 05 00000009 R			mov PosX, 98
+ 00000264  C6 05 0000000D R			mov PosX, 98
 	   62
  0000026B  E8 FFFFFEF6				call DesenhaObstaculo2
  00000270  0F B6 1D				movzx ebx, CtrlObs2
-	   0000001B R
- 00000277  C6 83 00000013 R			mov PosObs2[ebx], 98
+	   0000001F R
+ 00000277  C6 83 00000017 R			mov PosObs2[ebx], 98
 	   62
- 0000027E  FE 05 0000001B R			inc CtrlObs2
+ 0000027E  FE 05 0000001F R			inc CtrlObs2
  00000284  EB 00				jmp FIM
 					.ENDIF
  00000286		   *@C0004:
@@ -769,101 +771,138 @@ jogo.asm						     Page 1 - 1
 
  00000287			Jogo PROC
  00000287				JOGO_LOOP:
- 00000287  B8 000003E8				mov eax, 1000
+ 00000287  B8 00000032				mov eax, 50
  0000028C  E8 00000000 E			call Delay
- 00000291  E8 00000003				call AtualizaObstaculos
+ 00000291  E8 00000000 E			call ReadKey
+ 00000296  83 05 00000008 R			add contadorTempo, 50
+	   32
+						
+						.IF al == "w"
+ 0000029D  3C 77	   *	    cmp    al, 'w'
+ 0000029F  75 2F	   *	    jne    @C0006
+							;Deletando o Desenho do Ganso
+ 000002A1  C6 05 0000000D R				mov PosX,17
+	   11
+ 000002A8  C6 05 0000000C R				mov PosY, Y_GANSO_EM_PE
+	   14
+ 000002AF  C6 05 0000000E R				mov larguraO, LARGURA_GANSO
+	   0C
+ 000002B6  C6 05 0000000F R				mov alturaO,ALTURA_GANSO
+	   09
+ 000002BD  E8 FFFFFE17					call DeletaDesenho
+							;Desenhando o Ganso no Ar
+ 000002C2  C6 05 0000000C R				mov PosY, Y_GANSO_PULANDO
+	   0F
+ 000002C9  E8 FFFFFDC7					call DesenhaGansoEmPe
+							
+ 000002CE  EB 00					jmp IF_
+						.ENDIF
+ 000002D0		   *@C0006:
+						
+ 000002D0			IF_:
+						
+						.IF contadorTempo == 1000
+ 000002D0  81 3D 00000008 R
+	   000003E8	   *	    cmp    contadorTempo, 003E8h
+ 000002DA  75 11	   *	    jne    @C0008
+ 000002DC  E8 0000000F					call AtualizaObstaculos
+ 000002E1  C7 05 00000008 R				mov contadorTempo, 0
+	   00000000
+							
+ 000002EB  EB 9A					jmp JOGO_LOOP
+						.ENDIF
+ 000002ED		   *@C0008:
 
 
+ 000002ED  EB 98			jmp JOGO_LOOP
 
- 00000296  EB EF			jmp JOGO_LOOP
+ 000002EF  C3				ret
+ 000002F0			Jogo ENDP
 
- 00000298  C3				ret
- 00000299			Jogo ENDP
-
- 00000299			AtualizaObstaculos PROC
- 00000299  8A 0D 0000001A R		mov cl, CtrlObs1
- 0000029F				PERCORRE1:
+ 000002F0			AtualizaObstaculos PROC
+ 000002F0  8A 0D 0000001E R		mov cl, CtrlObs1
+ 000002F6				PERCORRE1:
 						;Deletando objeto1 da posição PosObs1[ecx]
- 0000029F  49					dec ecx
- 000002A0  8A 99 0000000C R			mov bl, PosObs1[ecx]
- 000002A6  88 1D 00000009 R			mov PosX, bl
- 000002AC  C6 05 00000008 R			mov PosY, Y_OBSTACULO1
+ 000002F6  49					dec ecx
+ 000002F7  8A 99 00000010 R			mov bl, PosObs1[ecx]
+ 000002FD  88 1D 0000000D R			mov PosX, bl
+ 00000303  C6 05 0000000C R			mov PosY, Y_OBSTACULO1
 	   1A
- 000002B3  C6 05 0000000A R			mov larguraO, LARGURA_OBJ1
+ 0000030A  C6 05 0000000E R			mov larguraO, LARGURA_OBJ1
 	   05
- 000002BA  C6 05 0000000B R			mov alturaO, ALTURA_OBJ1
+ 00000311  C6 05 0000000F R			mov alturaO, ALTURA_OBJ1
 	   03
- 000002C1  E8 FFFFFE13				call DeletaDesenho
+ 00000318  E8 FFFFFDBC				call DeletaDesenho
 
 						;Desenhando na nova posição
- 000002C6  80 2D 00000009 R			sub PosX, 5
+ 0000031D  80 2D 0000000D R			sub PosX, 5
 	   05
- 000002CD  8A 1D 00000009 R			mov bl, PosX
- 000002D3  88 99 0000000C R			mov PosObs1[ecx], bl
- 000002D9  88 1D 00000009 R			mov PosX, bl
- 000002DF  E8 FFFFFE2F				call DesenhaObstaculo1
- 000002E4  41					inc ecx
- 000002E5  E2 B8			loop PERCORRE1
- 000002E7  C3				ret
- 000002E8			AtualizaObstaculos ENDP
+ 00000324  8A 1D 0000000D R			mov bl, PosX
+ 0000032A  88 99 00000010 R			mov PosObs1[ecx], bl
+ 00000330  88 1D 0000000D R			mov PosX, bl
+ 00000336  E8 FFFFFDD8				call DesenhaObstaculo1
+ 0000033B  41					inc ecx
+ 0000033C  E2 B8			loop PERCORRE1
+ 0000033E  C3				ret
+ 0000033F			AtualizaObstaculos ENDP
 
- 000002E8			main PROC
+ 0000033F			main PROC
 					;INVOKE GetStdHandle,STD_OUTPUT_HANDLE 
 					;mov outHandle, eax										;DESCOBRIR O QUE FAZ (???)
 					;INVOKE SetConsoleScreenBufferSize,outHandle,scrSize
- 000002E8  E8 00000000 E		call Clrscr
+ 0000033F  E8 00000000 E		call Clrscr
 					
 					;Desenha menu
- 000002ED  E8 FFFFFD0E			call DesenhaMenu  
- 000002F2  B8 00000004			mov eax, red     ;cor da moldura
- 000002F7  E8 FFFFFD3D			call Moldura
+ 00000344  E8 FFFFFCB7			call DesenhaMenu  
+ 00000349  B8 00000004			mov eax, red     ;cor da moldura
+ 0000034E  E8 FFFFFCE6			call Moldura
 
 					;Esperando tecla ser pressionada
- 000002FC				EsperandoTecla:
- 000002FC  B8 00000032				mov  eax,50          ; sleep, to allow OS to time slice
- 00000301  E8 00000000 E			call Delay           ; (otherwise, some key presses are lost)
- 00000306  E8 00000000 E			call ReadKey         ; look for keyboard input 
- 0000030B  52					push edx
+ 00000353				EsperandoTecla:
+ 00000353  B8 00000032				mov  eax,50          ; sleep, to allow OS to time slice
+ 00000358  E8 00000000 E			call Delay           ; (otherwise, some key presses are lost)
+ 0000035D  E8 00000000 E			call ReadKey         ; look for keyboard input 
+ 00000362  52					push edx
 
 					.IF al == "1"
- 0000030C  3C 31	   *	    cmp    al, '1'
- 0000030E  75 0E	   *	    jne    @C0006
+ 00000363  3C 31	   *	    cmp    al, '1'
+ 00000365  75 0E	   *	    jne    @C000A
 						;TODO jogo fácil
- 00000310  E8 FFFFFEF0				call InicializaJogo
- 00000315  E8 FFFFFF6D				call Jogo
- 0000031A  EB 21				jmp SAIR
+ 00000367  E8 FFFFFE99				call InicializaJogo
+ 0000036C  E8 FFFFFF16				call Jogo
+ 00000371  EB 21				jmp SAIR
 					.ELSEIF al == "2"
- 0000031C  EB 1D	   *	    jmp    @C0008
- 0000031E		   *@C0006:
- 0000031E  3C 32	   *	    cmp    al, '2'
- 00000320  75 0E	   *	    jne    @C0009
+ 00000373  EB 1D	   *	    jmp    @C000C
+ 00000375		   *@C000A:
+ 00000375  3C 32	   *	    cmp    al, '2'
+ 00000377  75 0E	   *	    jne    @C000D
 						;TODO jogo dificil
- 00000322  E8 00000000 E			call Clrscr
- 00000327  E8 FFFFFD0D				call moldura
- 0000032C  EB 0F				jmp SAIR
+ 00000379  E8 00000000 E			call Clrscr
+ 0000037E  E8 FFFFFCB6				call moldura
+ 00000383  EB 0F				jmp SAIR
 					.ELSEIF al == VK_ESCAPE
- 0000032E  EB 0B	   *	    jmp    @C000B
- 00000330		   *@C0009:
- 00000330  3C 1B	   *	    cmp    al, VK_ESCAPE
- 00000332  75 07	   *	    jne    @C000C
+ 00000385  EB 0B	   *	    jmp    @C000F
+ 00000387		   *@C000D:
+ 00000387  3C 1B	   *	    cmp    al, VK_ESCAPE
+ 00000389  75 07	   *	    jne    @C0010
 						exit
- 00000334  6A 00	   *	    push   +000000000h
- 00000336  E8 00000000 E   *	    call   ExitProcess
+ 0000038B  6A 00	   *	    push   +000000000h
+ 0000038D  E8 00000000 E   *	    call   ExitProcess
 					.ENDIF
- 0000033B		   *@C000C:
- 0000033B		   *@C000B:
- 0000033B		   *@C0008:
+ 00000392		   *@C0010:
+ 00000392		   *@C000F:
+ 00000392		   *@C000C:
 					
- 0000033B  EB BF			jmp   EsperandoTecla    ; nenhuma tecla válida pressionada, tenta novamente
- 0000033D			SAIR:
- 0000033D  B6 28			mov dh, 40
- 0000033F  E8 00000000 E		call GotoXY
+ 00000392  EB BF			jmp   EsperandoTecla    ; nenhuma tecla válida pressionada, tenta novamente
+ 00000394			SAIR:
+ 00000394  B6 28			mov dh, 40
+ 00000396  E8 00000000 E		call GotoXY
 					exit
- 00000344  6A 00	   *	    push   +000000000h
- 00000346  E8 00000000 E   *	    call   ExitProcess
- 0000034B			main ENDP
+ 0000039B  6A 00	   *	    push   +000000000h
+ 0000039D  E8 00000000 E   *	    call   ExitProcess
+ 000003A2			main ENDP
 				END main
-Microsoft (R) Macro Assembler Version 14.16.27030.1	    06/13/19 00:44:08
+Microsoft (R) Macro Assembler Version 14.16.27027.1	    06/13/19 01:28:42
 jogo.asm						     Symbols 2 - 1
 
 
@@ -957,16 +996,16 @@ Segments and Groups:
 
 FLAT . . . . . . . . . . . . . .	GROUP
 STACK  . . . . . . . . . . . . .	32 Bit	 00001000 Para	  Stack	  'STACK'	 
-_DATA  . . . . . . . . . . . . .	32 Bit	 000006FC Para	  Public  'DATA'	
-_TEXT  . . . . . . . . . . . . .	32 Bit	 0000034B Para	  Public  'CODE'	
+_DATA  . . . . . . . . . . . . .	32 Bit	 000006FE Para	  Public  'DATA'	
+_TEXT  . . . . . . . . . . . . .	32 Bit	 000003A2 Para	  Public  'CODE'	
 
 
 Procedures, parameters, and locals:
 
                 N a m e                 Type     Value    Attr
 
-AtualizaObstaculos . . . . . . .	P Near	 00000299 _TEXT	Length= 0000004F Public STDCALL
-  PERCORRE1  . . . . . . . . . .	L Near	 0000029F _TEXT	
+AtualizaObstaculos . . . . . . .	P Near	 000002F0 _TEXT	Length= 0000004F Public STDCALL
+  PERCORRE1  . . . . . . . . . .	L Near	 000002F6 _TEXT	
 CloseFile  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 CloseHandle  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 Clrscr . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
@@ -1022,8 +1061,9 @@ HeapFree . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 HeapSize . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 InicializaJogo . . . . . . . . .	P Near	 00000205 _TEXT	Length= 0000001F Public STDCALL
 IsDigit  . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-Jogo . . . . . . . . . . . . . .	P Near	 00000287 _TEXT	Length= 00000012 Public STDCALL
+Jogo . . . . . . . . . . . . . .	P Near	 00000287 _TEXT	Length= 00000069 Public STDCALL
   JOGO_LOOP  . . . . . . . . . .	L Near	 00000287 _TEXT	
+  IF_  . . . . . . . . . . . . .	L Near	 000002D0 _TEXT	
 LocalFree  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 MessageBoxA  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 Moldura  . . . . . . . . . . . .	P Near	 00000039 _TEXT	Length= 0000005C Public STDCALL
@@ -1088,9 +1128,9 @@ WriteStackFrame  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 WriteString  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteToFile  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteWindowsMsg  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-main . . . . . . . . . . . . . .	P Near	 000002E8 _TEXT	Length= 00000063 Public STDCALL
-  EsperandoTecla . . . . . . . .	L Near	 000002FC _TEXT	
-  SAIR . . . . . . . . . . . . .	L Near	 0000033D _TEXT	
+main . . . . . . . . . . . . . .	P Near	 0000033F _TEXT	Length= 00000063 Public STDCALL
+  EsperandoTecla . . . . . . . .	L Near	 00000353 _TEXT	
+  SAIR . . . . . . . . . . . . .	L Near	 00000394 _TEXT	
 printf . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 scanf  . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 wsprintfA  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
@@ -1120,8 +1160,8 @@ CREATE_ALWAYS  . . . . . . . . .	Number	 00000002h
 CREATE_NEW . . . . . . . . . . .	Number	 00000001h   
 CTRL_MASK  . . . . . . . . . . .	Number	 0000000Ch   
 CreateFile . . . . . . . . . . .	Text   	 CreateFileA
-CtrlObs1 . . . . . . . . . . . .	Byte	 0000001A _DATA	
-CtrlObs2 . . . . . . . . . . . .	Byte	 0000001B _DATA	
+CtrlObs1 . . . . . . . . . . . .	Byte	 0000001E _DATA	
+CtrlObs2 . . . . . . . . . . . .	Byte	 0000001F _DATA	
 DO_NOT_SHARE . . . . . . . . . .	Number	 00000000h   
 ENABLE_ECHO_INPUT  . . . . . . .	Number	 00000004h   
 ENABLE_LINE_INPUT  . . . . . . .	Number	 00000002h   
@@ -1187,7 +1227,7 @@ INVALID_HANDLE_VALUE . . . . . .	Number	 -00000001h
 KBDOWN_FLAG  . . . . . . . . . .	Number	 00000001h   
 KEY_EVENT  . . . . . . . . . . .	Number	 00000001h   
 KEY_MASKS  . . . . . . . . . . .	Number	 0000001Fh   
-LARGURA_GANSO  . . . . . . . . .	Number	 0000000Bh   
+LARGURA_GANSO  . . . . . . . . .	Number	 0000000Ch   
 LARGURA_OBJ1 . . . . . . . . . .	Number	 00000005h   
 LARGURA_OBJ2 . . . . . . . . . .	Number	 00000007h   
 LARGURA  . . . . . . . . . . . .	Number	 00000069h   
@@ -1225,10 +1265,10 @@ NUMLOCK_ON . . . . . . . . . . .	Number	 00000020h
 OPEN_ALWAYS  . . . . . . . . . .	Number	 00000004h   
 OPEN_EXISTING  . . . . . . . . .	Number	 00000003h   
 PeekConsoleInput . . . . . . . .	Text   	 PeekConsoleInputA
-PosObs1  . . . . . . . . . . . .	Byte	 0000000C _DATA	
-PosObs2  . . . . . . . . . . . .	Byte	 00000013 _DATA	
-PosX . . . . . . . . . . . . . .	Byte	 00000009 _DATA	
-PosY . . . . . . . . . . . . . .	Byte	 00000008 _DATA	
+PosObs1  . . . . . . . . . . . .	Byte	 00000010 _DATA	
+PosObs2  . . . . . . . . . . . .	Byte	 00000017 _DATA	
+PosX . . . . . . . . . . . . . .	Byte	 0000000D _DATA	
+PosY . . . . . . . . . . . . . .	Byte	 0000000C _DATA	
 RIGHT_ALT_PRESSED  . . . . . . .	Number	 00000001h   
 RIGHT_CTRL_PRESSED . . . . . . .	Number	 00000004h   
 ReadConsoleInput . . . . . . . .	Text   	 ReadConsoleInputA
@@ -1326,35 +1366,37 @@ WriteConsoleOutputCharacter  . .	Text   	 WriteConsoleOutputCharacterA
 WriteConsole . . . . . . . . . .	Text   	 WriteConsoleA
 Y_GANSO_AGACHADO . . . . . . . .	Number	 00000016h   
 Y_GANSO_EM_PE  . . . . . . . . .	Number	 00000014h   
+Y_GANSO_PULANDO  . . . . . . . .	Number	 0000000Fh   
 Y_OBSTACULO1 . . . . . . . . . .	Number	 0000001Ah   
 Y_OBSTACULO2 . . . . . . . . . .	Number	 00000013h   
-alturaO  . . . . . . . . . . . .	Byte	 0000000B _DATA	
+alturaO  . . . . . . . . . . . .	Byte	 0000000F _DATA	
 black  . . . . . . . . . . . . .	Number	 00000000h   
 blue . . . . . . . . . . . . . .	Number	 00000001h   
 brown  . . . . . . . . . . . . .	Number	 00000006h   
+contadorTempo  . . . . . . . . .	DWord	 00000008 _DATA	
 cyan . . . . . . . . . . . . . .	Number	 00000003h   
 exit . . . . . . . . . . . . . .	Text   	 INVOKE ExitProcess,0
-ganso_agachado . . . . . . . . .	Byte	 00000363 _DATA	
-ganso  . . . . . . . . . . . . .	Byte	 00000252 _DATA	
+ganso_agachado . . . . . . . . .	Byte	 00000367 _DATA	
+ganso  . . . . . . . . . . . . .	Byte	 00000256 _DATA	
 gray . . . . . . . . . . . . . .	Number	 00000008h   
 green  . . . . . . . . . . . . .	Number	 00000002h   
-larguraO . . . . . . . . . . . .	Byte	 0000000A _DATA	
+larguraO . . . . . . . . . . . .	Byte	 0000000E _DATA	
 lightBlue  . . . . . . . . . . .	Number	 00000009h   
 lightCyan  . . . . . . . . . . .	Number	 0000000Bh   
 lightGray  . . . . . . . . . . .	Number	 00000007h   
 lightGreen . . . . . . . . . . .	Number	 0000000Ah   
 lightMagenta . . . . . . . . . .	Number	 0000000Dh   
 lightRed . . . . . . . . . . . .	Number	 0000000Ch   
-logo . . . . . . . . . . . . . .	Byte	 0000001C _DATA	
+logo . . . . . . . . . . . . . .	Byte	 00000020 _DATA	
 magenta  . . . . . . . . . . . .	Number	 00000005h   
-menu . . . . . . . . . . . . . .	Byte	 000001B8 _DATA	
-nuvem  . . . . . . . . . . . . .	Byte	 00000457 _DATA	
-obstaculo1 . . . . . . . . . . .	Byte	 0000042E _DATA	
-obstaculo2 . . . . . . . . . . .	Byte	 00000444 _DATA	
+menu . . . . . . . . . . . . . .	Byte	 000001BC _DATA	
+nuvem  . . . . . . . . . . . . .	Byte	 00000459 _DATA	
+obstaculo1 . . . . . . . . . . .	Byte	 00000432 _DATA	
+obstaculo2 . . . . . . . . . . .	Byte	 00000448 _DATA	
 outHandle  . . . . . . . . . . .	DWord	 00000000 _DATA	
 red  . . . . . . . . . . . . . .	Number	 00000004h   
 scrSize  . . . . . . . . . . . .	COORD	 00000004 _DATA	
-sol  . . . . . . . . . . . . . .	Byte	 00000648 _DATA	
+sol  . . . . . . . . . . . . . .	Byte	 0000064A _DATA	
 white  . . . . . . . . . . . . .	Number	 0000000Fh   
 wsprintf . . . . . . . . . . . .	Text   	 wsprintfA
 yellow . . . . . . . . . . . . .	Number	 0000000Eh   

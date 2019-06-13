@@ -10,6 +10,7 @@ INCLUDE Irvine32.inc
 
 outHandle    DWORD ? 
 scrSize COORD <85,50>
+contadorTempo DWORD 0
 
 ;constantes utilizadas no desenho da moldura
 LARGURA = 105
@@ -26,11 +27,12 @@ LARGURA_OBJ1 = 5
 ALTURA_OBJ1 = 3
 LARGURA_OBJ2 = 7
 ALTURA_OBJ2 = 3
-LARGURA_GANSO = 11
+LARGURA_GANSO = 12
 ALTURA_GANSO = 9
 ALTURA_GANSO_AGACHADO = 7
 ;Posição no eixo Y dos desenhos
 Y_GANSO_EM_PE = 20
+Y_GANSO_PULANDO =  15
 Y_GANSO_AGACHADO = 22
 Y_OBSTACULO1 = 26
 Y_OBSTACULO2 = 19
@@ -380,12 +382,33 @@ CriaObstaculo ENDP
 
 Jogo PROC
 	JOGO_LOOP:
-		mov eax, 1000
+		mov eax, 50
 		call Delay
 		call ReadKey
-
-		call AtualizaObstaculos
-
+		add contadorTempo, 50
+		
+		.IF al == "w"
+			;Deletando o Desenho do Ganso
+			mov PosX,17
+			mov PosY, Y_GANSO_EM_PE
+			mov larguraO, LARGURA_GANSO
+			mov alturaO,ALTURA_GANSO
+			call DeletaDesenho
+			;Desenhando o Ganso no Ar
+			mov PosY, Y_GANSO_PULANDO
+			call DesenhaGansoEmPe
+			
+			jmp IF_
+		.ENDIF
+		
+IF_:
+		
+		.IF contadorTempo == 1000
+			call AtualizaObstaculos
+			mov contadorTempo, 0
+			
+			jmp JOGO_LOOP
+		.ENDIF
 
 
 	jmp JOGO_LOOP
