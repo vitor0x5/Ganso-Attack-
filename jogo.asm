@@ -35,6 +35,13 @@ Y_GANSO_AGACHADO = 22
 Y_OBSTACULO1 = 26
 Y_OBSTACULO2 = 19
 
+;Fila de posição dos obstáculos
+PosObs1 BYTE 7 DUP(?)
+PosObs2 BYTE 7 DUP(?)
+CtrlObs1 BYTE 0			;posições atuais da fila
+CtrlObs2 BYTE 0
+
+
 ; Logo do jogo
 logo BYTE "                      ____                            _   _   _             _    _ _ ",0ah, 0dh  
 	 BYTE "	              / ___| __ _ _ __  ___  ___      / \ | |_| |_ __ _  ___| | _| | |",0ah, 0dh  
@@ -75,7 +82,7 @@ obstaculo1 	BYTE "!!!!!",0ah,0dh
 			BYTE "!   !",0ah,0dh,0
 			
 obstaculo2  BYTE " /",0ah,0dh
-			BYTE "x------",0ah,0dh
+			BYTE "x----",0ah,0dh
 			BYTE " \ ",0ah,0dh,0
 
 nuvem   BYTE "		                                         ____     ____        ",0ah,0dh 
@@ -342,11 +349,72 @@ InicializaJogo PROC
 	;mov larguraO, LARGURA_GANSO
 	;call DeletaDesenho
 	
-	mov PosX, 30
-	call DesenhaObstaculo1
+	call CriaObstaculo
 	ret
 InicializaJogo ENDP
 ;====================================================================
+
+CriaObstaculo PROC
+	call Randomize
+	mov eax, 3
+	call RandomRange
+	mov eax, 1
+	.IF al == 1
+		mov PosX, 100
+		call DesenhaObstaculo1
+		movzx ebx, CtrlObs1
+		mov PosObs1[ebx], 100
+		inc CtrlObs1
+		jmp FIM
+	.ELSEIF al == 2
+		mov PosX, 98
+		call DesenhaObstaculo2
+		movzx ebx, CtrlObs2
+		mov PosObs2[ebx], 98
+		inc CtrlObs2
+		jmp FIM
+	.ENDIF
+	FIM:
+	ret
+CriaObstaculo ENDP
+
+Jogo PROC
+	JOGO_LOOP:
+		mov eax, 1000
+		call Delay
+		call ReadKey
+
+		call AtualizaObstaculos
+
+
+
+	jmp JOGO_LOOP
+
+	ret
+Jogo ENDP
+
+AtualizaObstaculos PROC
+	mov cl, CtrlObs1
+	PERCORRE1:
+		;Deletando objeto1 da posição PosObs1[ecx]
+		dec ecx
+		mov bl, PosObs1[ecx]
+		mov PosX, bl
+		mov PosY, Y_OBSTACULO1
+		mov larguraO, LARGURA_OBJ1
+		mov alturaO, ALTURA_OBJ1
+		call DeletaDesenho
+
+		;Desenhando na nova posição
+		sub PosX, 5
+		mov bl, PosX
+		mov PosObs1[ecx], bl
+		mov PosX, bl
+		call DesenhaObstaculo1
+		inc ecx
+	loop PERCORRE1
+	ret
+AtualizaObstaculos ENDP
 
 main PROC
 	;INVOKE GetStdHandle,STD_OUTPUT_HANDLE 
@@ -369,6 +437,7 @@ main PROC
 	.IF al == "1"
 		;TODO jogo fácil
 		call InicializaJogo
+		call Jogo
 		jmp SAIR
 	.ELSEIF al == "2"
 		;TODO jogo dificil
