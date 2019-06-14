@@ -11,6 +11,7 @@ INCLUDE Irvine32.inc
 outHandle    DWORD ? 
 scrSize COORD <85,50>
 contadorTempo DWORD 0
+contadorObstaculo DWORD 0
 
 ;constantes utilizadas no desenho da moldura
 LARGURA = 105
@@ -25,7 +26,7 @@ alturaO BYTE ?
 ;Tamanho dos desenhos
 LARGURA_OBJ1 = 5
 ALTURA_OBJ1 = 3
-LARGURA_OBJ2 = 7
+LARGURA_OBJ2 = 5
 ALTURA_OBJ2 = 3
 LARGURA_GANSO = 12
 ALTURA_GANSO = 9
@@ -79,13 +80,13 @@ ganso_agachado 	BYTE "                      __  ",0ah,0dh
 				BYTE "                  ^   ^     ",0ah,0dh,0
 				
 ; Obstaculos
-obstaculo1 	BYTE "!!!!!",0ah,0dh
-			BYTE "!   !",0ah,0dh
-			BYTE "!   !",0ah,0dh,0
+;obstaculo1 	BYTE "!!!!!",0ah,0dh
+;			BYTE "!   !",0ah,0dh
+;			BYTE "!   !",0ah,0dh,0
 			
-obstaculo2  BYTE " /",0ah,0dh
-			BYTE "x----",0ah,0dh
-			BYTE " \ ",0ah,0dh,0
+;obstaculo2  BYTE " /",0ah,0dh
+;			BYTE "x----",0ah,0dh
+;			BYTE " \ ",0ah,0dh,0
 
 nuvem   BYTE "		                                         ____     ____        ",0ah,0dh 
     	BYTE "	                                              __/    \___/    \____   ",0ah,0dh 
@@ -180,14 +181,27 @@ Moldura ENDP
 ;Recebe: PosY
 ;Retorna: desenho do ganso na tela
 ;===================================================================
-DesenhaGansoEmPe PROC USES eax edx
+DesenhaGansoEmPe PROC USES eax edx ecx
 	mov eax, white
 	call SetTextColor
 	mov dl,1
-	mov dh,Y_GANSO_EM_PE
+	mov dh,PosY
 	call GotoXY
 	mov edx, OFFSET ganso
 	call WriteString
+	
+	;redesenha moldura que é apagada
+	mov eax, green
+    call SetTextColor
+	mov dl, 1
+	mov dh, PosY
+	mov ecx, 9
+	mov al, 219
+	REMOLDURA:
+		call GotoXY
+		call WriteChar
+		inc dh
+	loop REMOLDURA
 ret
 DesenhaGansoEmPe ENDP
 ;===================================================================
@@ -291,7 +305,7 @@ DesenhaObstaculo2 PROC
 
 	inc dl
 	mov al, "-"
-	mov ecx, 6
+	mov ecx, 4
 	L1: 
 		call GotoXY
 		call WriteChar
@@ -299,7 +313,7 @@ DesenhaObstaculo2 PROC
 	loop L1
 
 	inc dh
-	sub dl, 6
+	sub dl, 4
 	mov al, "\"
 	call GotoXY
 	call WriteChar
@@ -338,29 +352,26 @@ DesenhaCeu ENDP
 ;====================================================================
 InicializaJogo PROC
 	call Clrscr
+	mov PosY, Y_GANSO_EM_PE
 	call DesenhaGansoEmPE
 	call DesenhaCeu
 	mov eax, green	;cor da moldura
 	call Moldura
-	
-
-	;Deletando o ganso agachado
-	;mov PosY, Y_GANSO_AGACHADO
-	;mov PosX, 10
-	;mov alturaO, ALTURA_GANSO_AGACHADO
-	;mov larguraO, LARGURA_GANSO
-	;call DeletaDesenho
 	
 	call CriaObstaculo
 	ret
 InicializaJogo ENDP
 ;====================================================================
 
+;=====================Cria Obstaculo ================================
+;Gera os obstáculos de forma aleatória
+;Recebe: nda
+;Retorna: um obstáculo(ou nada) na tela
+;====================================================================
 CriaObstaculo PROC
 	call Randomize
 	mov eax, 3
 	call RandomRange
-	mov eax, 1
 	.IF al == 1
 		mov PosX, 100
 		call DesenhaObstaculo1
@@ -369,27 +380,35 @@ CriaObstaculo PROC
 		inc CtrlObs1
 		jmp FIM
 	.ELSEIF al == 2
-		mov PosX, 98
+		mov PosX, 99
 		call DesenhaObstaculo2
 		movzx ebx, CtrlObs2
-		mov PosObs2[ebx], 98
+		mov PosObs2[ebx], 100
 		inc CtrlObs2
 		jmp FIM
 	.ENDIF
 	FIM:
 	ret
 CriaObstaculo ENDP
+;====================================================================
 
+;=======================JOGO=========================================
+;Rotina do jogo. Faz a leitura da tecla de salto(W) e chama os 
+;procedimentos de movimentação e criação de obstaculos
+;Recebe: nda
+;Retorna: jogo na tela
+;====================================================================
 Jogo PROC
 	JOGO_LOOP:
 		mov eax, 50
 		call Delay
 		call ReadKey
 		add contadorTempo, 50
+		add contadorObstaculo, 50
 		
 		.IF al == "w"
 			;Deletando o Desenho do Ganso
-			mov PosX,17
+			mov PosX,16
 			mov PosY, Y_GANSO_EM_PE
 			mov larguraO, LARGURA_GANSO
 			mov alturaO,ALTURA_GANSO
@@ -402,18 +421,36 @@ Jogo PROC
 		.ENDIF
 		
 		ATUALIZA_OBSTACULOS:
-		.IF contadorTempo == 1000
+		.IF contadorTempo == 500
 			call AtualizaObstaculos
 			mov contadorTempo, 0
+			jmp OBSTACULOS
+		.ENDIF
+
+		OBSTACULOS:
+		.IF contadorObstaculo >= 1500
+			call CriaObstaculo
+			mov contadorObstaculo, 0
 			jmp JOGO_LOOP
 		.ENDIF
+
+
 	jmp JOGO_LOOP
 
 	ret
 Jogo ENDP
+;====================================================================
 
+;=======================Atualiza Obstaculos==========================
+;Atualiza posição de todos os obstáculos desenhados na tela
+;Recebe: Lista com posição dos obstáculos existentes
+;Retorna: Lista de posições atualizada
+;====================================================================
 AtualizaObstaculos PROC
+	;Obstaculos do tipo 1 =============================
 	mov cl, CtrlObs1
+	cmp cl, 0
+	je TIPO2	;Se não existir obstáculo do tipo 1 pula para tipo 2
 	PERCORRE1:
 		;Deletando objeto1 da posição PosObs1[ecx]
 		dec ecx
@@ -425,15 +462,92 @@ AtualizaObstaculos PROC
 		call DeletaDesenho
 
 		;Desenhando na nova posição
-		sub PosX, 5
-		mov bl, PosX
-		mov PosObs1[ecx], bl
-		mov PosX, bl
-		call DesenhaObstaculo1
+		.IF PosX >= 6 
+			sub PosX, 5
+			mov bl, PosX
+			mov PosObs1[ecx], bl
+			mov PosX, bl
+			call DesenhaObstaculo1
+			jmp INCREMENTA1
+		.ELSE
+			mov edx, OFFSET PosObs1
+			dec CtrlObs1
+			mov bl, CtrlObs1
+			call ShiftLeftVetorPosicao
+			jmp INCREMENTA2
+		.ENDIF
+		INCREMENTA1:
 		inc ecx
 	loop PERCORRE1
+	;=================================================
+
+	;Obstáculos do tipo 2 ============================
+	TIPO2:
+	mov cl, CtrlObs2
+	cmp cl, 0
+	je SAIR		;Se não existir obstáculo do tipo 2, sai
+	PERCORRE2:
+		;Deletando objeto2 da posição PosObs2[ecx]
+		dec ecx
+		mov bl, PosObs2[ecx]
+		mov PosX, bl
+		mov PosY, Y_OBSTACULO2
+		mov larguraO, LARGURA_OBJ2
+		mov alturaO, ALTURA_OBJ2
+		call DeletaDesenho
+
+		;Desenhando na nova posição
+		.IF PosX >= 6
+			sub PosX, 5
+			mov bl, PosX
+			mov PosObs2[ecx], bl
+			mov PosX, bl
+			call DesenhaObstaculo2
+			jmp INCREMENTA2
+		.ELSE
+			mov edx, OFFSET PosObs2
+			dec CtrlObs2
+			mov bl, CtrlObs2
+			call ShiftLeftVetorPosicao
+			jmp INCREMENTA2
+		.ENDIF
+		INCREMENTA2:
+		inc ecx
+	loop PERCORRE2
+	;=================================================
+
+	SAIR:
 	ret
 AtualizaObstaculos ENDP
+;====================================================================
+
+;=====================Shift Vetor Posição=========================
+;Recebe: edx = OFFSET do Vetor, ebx = numero de elementos do vetor -1
+;retorna: 
+;====================================================================
+ShiftLeftVetorPosicao PROC USES ecx ebx edx
+	mov ecx, ebx
+	cmp ecx, 0
+	je EXCEPTION_ ;Se ecx = 0 loop não funciona corretamente
+	PERCORRE:
+		inc edx
+		mov bl, [edx]
+		dec edx
+		mov [edx], bl 
+		inc edx
+	loop PERCORRE
+	jmp SAIR
+
+	EXCEPTION_:
+		inc edx
+		mov bl, [edx]
+		dec edx
+		mov [edx], bl 
+		inc edx
+	SAIR:
+	ret
+ShiftLeftVetorPosicao ENDP
+;====================================================================
 
 main PROC
 	;INVOKE GetStdHandle,STD_OUTPUT_HANDLE 
