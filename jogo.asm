@@ -12,16 +12,20 @@ outHandle    DWORD ?
 scrSize COORD <85,50>
 contadorTempo DWORD 0
 contadorObstaculo DWORD 0
+contadorPulo DWORD 0 
+contadorAgacha DWORD 0
 
 ;constantes utilizadas no desenho da moldura
 LARGURA = 105
-ALTURA = 29
+ALTURA = 30
 
 ;Variáveis auxiliares para impressão e exclusão de objetos da tela
 PosY BYTE ?
 PosX BYTE ?
 larguraO BYTE ?
 alturaO BYTE ?
+
+statusGanso BYTE 1 ; 0 = Agachado, 1 = em pé, 2 = pulando
 
 ;Tamanho dos desenhos
 LARGURA_OBJ1 = 5
@@ -60,24 +64,24 @@ logo BYTE "                      ____                            _   _   _      
 		BYTE "				",0
 		
 ;Ganso
-ganso 	BYTE "                        __ ",0ah,0dh  
-		BYTE "                        /  >",0ah,0dh  
-		BYTE "                       /  \ ",0ah,0dh  
-		BYTE "                 _____/   / ",0ah,0dh  
-		BYTE "                <        /  ",0ah,0dh  
-		BYTE "                 \_    _/   ",0ah,0dh  
-		BYTE "                   |   |     ",0ah,0dh  
-		BYTE "                   |   |     ",0ah,0dh  
-		BYTE "                   ^   ^     ",0ah,0dh,0
+ganso1 	BYTE                          "__",0ah,0dh,0  
+ganso2	BYTE                         "/  >",0ah,0dh,0  
+ganso3	BYTE                        "/  \",0ah,0dh,0  
+ganso4	BYTE                  "_____/   /",0ah,0dh,0  
+ganso5	BYTE                 "<        /",0ah,0dh,0  
+ganso6	BYTE                  "\_    _/",0ah,0dh,0  
+ganso7	BYTE                    "|   |",0ah,0dh,0  
+ganso8	BYTE                    "|   |",0ah,0dh,0  
+ganso9	BYTE                    "^   ^",0
 	
 ; Ganso Agachado
-ganso_agachado 	BYTE "                      __  ",0ah,0dh  
-				BYTE "                      /  >",0ah,0dh  
-				BYTE "                _____/  \ ",0ah,0dh  
-				BYTE "               <        /  ",0ah,0dh  
-				BYTE "                 \_   _/   ",0ah,0dh  
-				BYTE "                  |   |     ",0ah,0dh  
-				BYTE "                  ^   ^     ",0ah,0dh,0
+ganso_agachado1 	BYTE                         "__",0ah,0dh,0  
+ganso_agachado2		BYTE                       "/  >",0ah,0dh,0  
+ganso_agachado3		BYTE                 "_____/  \ ",0ah,0dh,0  
+ganso_agachado4		BYTE                "<        /  ",0ah,0dh,0  
+ganso_agachado5		BYTE                  "\_   _/   ",0ah,0dh,0  
+ganso_agachado6		BYTE                   "|   |     ",0ah,0dh,0  
+ganso_agachado7		BYTE                   "^   ^     ",0
 				
 ; Obstaculos
 ;obstaculo1 	BYTE "!!!!!",0ah,0dh
@@ -187,7 +191,7 @@ DesenhaGansoEmPe PROC USES eax edx ecx
 	mov dl,1
 	mov dh,PosY
 	call GotoXY
-	mov edx, OFFSET ganso
+	;mov edx, OFFSET ganso
 	call WriteString
 	
 	;redesenha moldura que é apagada
@@ -206,6 +210,146 @@ ret
 DesenhaGansoEmPe ENDP
 ;===================================================================
 
+DesenhaGansoEmPE2 PROC USES edx eax
+	mov eax, white
+	call SetTextColor
+    mov dl, 25
+	mov dh, PosY
+	push edx
+	call GotoXY
+	mov edx, OFFSET ganso1
+	call WriteString
+
+	pop edx
+    mov dl, 24
+	inc dh
+	call GotoXY
+	push edx
+	mov edx, OFFSET ganso2
+	call WriteString
+
+    pop edx
+	mov dl, 23
+	inc dh
+	call GotoXY
+	push edx
+	mov edx, OFFSET ganso3
+	call WriteString
+
+	pop edx
+	mov dl, 17
+	inc dh
+	call GotoXY
+	push edx
+	mov edx, OFFSET ganso4
+	call WriteString
+
+	pop edx
+	mov dl, 16
+	inc dh
+	call GotoXY
+	push edx
+	mov edx, OFFSET ganso5
+	call WriteString	
+
+	pop edx
+	mov dl, 17
+	inc dh
+	call GotoXY
+	push edx
+	mov edx, OFFSET ganso6
+	call WriteString
+
+	pop edx
+	mov dl, 19
+	inc dh
+	call GotoXY
+	push edx
+	mov edx, OFFSET ganso7
+	call WriteString
+
+	pop edx
+	mov dl, 19
+	inc dh
+	call GotoXY
+	push edx
+	mov edx, OFFSET ganso8
+	call WriteString
+
+	pop edx
+	mov dl, 19
+	inc dh
+	call GotoXY
+	push edx
+	mov edx, OFFSET ganso9
+	call WriteString 
+	pop edx
+	ret
+DesenhaGansoEmPE2 ENDP
+
+DesenhaGansoAgachado2 PROC USES eax
+    mov eax, white
+	call SetTextColor
+    mov dl, 24
+	mov dh, PosY
+	push edx
+	call GotoXY
+	mov edx, OFFSET ganso_agachado1
+	call WriteString
+
+	pop edx
+    mov dl, 23
+	inc dh
+	call GotoXY
+	push edx
+	mov edx, OFFSET ganso_agachado2
+	call WriteString
+
+	pop edx
+	mov dl, 17
+	inc dh
+	call GotoXY
+	push edx
+	mov edx, OFFSET ganso_agachado3
+	call WriteString
+
+	pop edx
+	mov dl, 16
+	inc dh
+	call GotoXY
+	push edx
+	mov edx, OFFSET ganso_agachado4
+	call WriteString
+
+	pop edx
+	mov dl, 18
+	inc dh
+	call GotoXY
+	push edx
+	mov edx, OFFSET ganso_agachado5
+	call WriteString	
+
+	pop edx
+	mov dl, 19
+	inc dh
+	call GotoXY
+	push edx
+	mov edx, OFFSET ganso_agachado6
+	call WriteString
+
+	pop edx
+	mov dl, 19
+	inc dh
+	call GotoXY
+	push edx
+	mov edx, OFFSET ganso_agachado7
+	call WriteString
+	pop edx
+
+	ret
+	exit
+DesenhaGansoAgachado2 ENDP
+
 ;======================Desenha o Ganso agachado=====================
 ;Recebe: PosY
 ;Retorna: desenho do ganso na tela
@@ -216,7 +360,7 @@ DesenhaGansoAgachado PROC USES eax edx
 	mov dl,1
 	mov dh,Y_GANSO_AGACHADO
 	call GotoXY
-	mov edx, OFFSET ganso_agachado
+	;mov edx, OFFSET ganso_agachado
 	call WriteString
 ret
 DesenhaGansoAgachado ENDP
@@ -252,7 +396,7 @@ DeletaDesenho ENDP
 ;Recebe: PosX
 ;Retorna: obstaculo desenhado na tela
 ;===================================================================
-DesenhaObstaculo1 PROC 
+DesenhaObstaculo1 PROC USES ecx
 	mov eax, brown
 	call SetTextColor
 	mov dl, PosX
@@ -285,7 +429,7 @@ DesenhaObstaculo1 ENDP
 ;Recebe: PosXObstaculo2
 ;Retorna: obstaculo desenhado na tela
 ;===================================================================
-DesenhaObstaculo2 PROC
+DesenhaObstaculo2 PROC USES ecx
 	mov eax, red
 	call SetTextColor
 	add PosX, 1
@@ -353,7 +497,7 @@ DesenhaCeu ENDP
 InicializaJogo PROC
 	call Clrscr
 	mov PosY, Y_GANSO_EM_PE
-	call DesenhaGansoEmPE
+	call DesenhaGansoEmPE2
 	call DesenhaCeu
 	mov eax, green	;cor da moldura
 	call Moldura
@@ -405,9 +549,12 @@ Jogo PROC
 		call ReadKey
 		add contadorTempo, 50
 		add contadorObstaculo, 50
+		add contadorPulo, 50
+		add contadorAgacha, 50
 		
-		.IF al == "w"
+		.IF al == "w"        ;Faz o Ganso Pular
 			;Deletando o Desenho do Ganso
+			mov statusGanso, 2
 			mov PosX,16
 			mov PosY, Y_GANSO_EM_PE
 			mov larguraO, LARGURA_GANSO
@@ -415,8 +562,70 @@ Jogo PROC
 			call DeletaDesenho
 			;Desenhando o Ganso no Ar
 			mov PosY, Y_GANSO_PULANDO
-			call DesenhaGansoEmPe
+			mov contadorPulo, 0
+			mov contadorAgacha, 0
+			call DesenhaGansoEmPe2
+			jmp DELAY_MOVIMENTO
+		
+		.ELSEIF al ==  "s"    ;Faz o Ganso Agachar
+			;Deletando o Desenho do Ganso
+			mov PosX,16
+			cmp statusGanso, 2
+			jne NPULANDO
+				mov PosY, Y_GANSO_PULANDO
+				jmp DELETA_
+			NPULANDO:
+			cmp statusGanso, 1
+			jne AGACHADO_
+				mov PosY, Y_GANSO_EM_PE
+				jmp DELETA_
+			AGACHADO_:
+				jmp DELAY_MOVIMENTO
+			DELETA_:
+			mov larguraO, LARGURA_GANSO
+			mov alturaO,ALTURA_GANSO
+			call DeletaDesenho
+			;Desenhando o Ganso Agachado
+			mov PosY, Y_GANSO_AGACHADO
+			mov contadorAgacha, 0
+			mov contadorPulo, 0
+			call DesenhaGansoAgachado2
+			mov statusGanso, 0
+			jmp DELAY_MOVIMENTO
 			
+		.ENDIF
+		
+		DELAY_MOVIMENTO:
+		.IF contadorPulo == 1500 && statusGanso == 2
+			;Deleta o Ganso no Ar
+			mov statusGanso, 1
+			mov PosX, 16
+			mov PosY, Y_GANSO_PULANDO
+			mov larguraO, LARGURA_GANSO
+			mov alturaO, ALTURA_GANSO
+			call DeletaDesenho
+			;Desenha o Ganso de volta ao chao
+			mov PosY, Y_GANSO_EM_PE
+			call DesenhaGansoEmPe2
+			
+			mov contadorPulo, 0
+			jmp DELAY_MOVIMENTO2
+		.ENDIF
+
+		DELAY_MOVIMENTO2:
+		.IF contadorAgacha == 1500 && statusGanso == 0
+			;Deleta o Ganso agachado
+			mov statusGanso, 1
+			mov PosX, 16
+			mov PosY, Y_GANSO_AGACHADO
+			mov larguraO, LARGURA_GANSO
+			mov alturaO, ALTURA_GANSO
+			call DeletaDesenho
+			;Desenha o Ganso de volta ao chao
+			mov PosY, Y_GANSO_EM_PE
+			call DesenhaGansoEmPe2
+			
+			mov contadorAgacha, 0
 			jmp ATUALIZA_OBSTACULOS
 		.ENDIF
 		
@@ -428,13 +637,11 @@ Jogo PROC
 		.ENDIF
 
 		OBSTACULOS:
-		.IF contadorObstaculo >= 1500
+		.IF contadorObstaculo >= 2500
 			call CriaObstaculo
 			mov contadorObstaculo, 0
 			jmp JOGO_LOOP
 		.ENDIF
-
-
 	jmp JOGO_LOOP
 
 	ret
@@ -446,8 +653,9 @@ Jogo ENDP
 ;Recebe: Lista com posição dos obstáculos existentes
 ;Retorna: Lista de posições atualizada
 ;====================================================================
-AtualizaObstaculos PROC
+AtualizaObstaculos PROC USES ecx
 	;Obstaculos do tipo 1 =============================
+	mov ecx, 0
 	mov cl, CtrlObs1
 	cmp cl, 0
 	je TIPO2	;Se não existir obstáculo do tipo 1 pula para tipo 2
