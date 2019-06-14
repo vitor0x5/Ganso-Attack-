@@ -398,19 +398,15 @@ Jogo PROC
 			mov PosY, Y_GANSO_PULANDO
 			call DesenhaGansoEmPe
 			
-			jmp IF_
+			jmp ATUALIZA_OBSTACULOS
 		.ENDIF
 		
-IF_:
-		
+		ATUALIZA_OBSTACULOS:
 		.IF contadorTempo == 1000
 			call AtualizaObstaculos
 			mov contadorTempo, 0
-			
 			jmp JOGO_LOOP
 		.ENDIF
-
-
 	jmp JOGO_LOOP
 
 	ret
