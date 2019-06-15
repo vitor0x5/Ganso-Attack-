@@ -1,15 +1,13 @@
-; Implementa��o do jogo Ganso Attack!! em assembly pelos alunos
+; Implementação do jogo Ganso Attack!! em assembly pelos alunos
 ; Matheus de Brito Soares Porto RA: 744348
 ; Vitor Hugo Guilherme          RA: 744359
-; Da disciplina Arquitetura e Organiza��o de Computadores 2 - DC- UFSCar
+; Da disciplina Arquitetura e Organização de Computadores 2 - DC- UFSCar
 ; Professor: Dr. Luciano Neres
 
 INCLUDE Irvine32.inc
 
 .data
-
-outHandle    DWORD ? 
-scrSize COORD <85,50>
+;Contadores de tempo para execução dos procedimentos do jogo
 contadorTempo DWORD 0
 contadorObstaculo DWORD 0
 contadorPulo DWORD 0 
@@ -17,7 +15,7 @@ contadorAgacha DWORD 0
 
 ;constantes utilizadas no desenho da moldura
 LARGURA = 105
-ALTURA = 30
+ALTURA = 29
 
 ;Variáveis auxiliares para impressão e exclusão de objetos da tela
 PosY BYTE ?
@@ -41,16 +39,24 @@ Y_GANSO_PULANDO =  15
 Y_GANSO_AGACHADO = 22
 Y_OBSTACULO1 = 26
 Y_OBSTACULO2 = 19
+;Posição do score
+X_SCORE = 77
+Y_SCORE = 5
 
 ;Fila de posição dos obstáculos
 PosObs1 BYTE 7 DUP(?)
 PosObs2 BYTE 7 DUP(?)
-CtrlObs1 BYTE 0			;posições atuais da fila
+CtrlObs1 BYTE 0			;Posições finais das filas
 CtrlObs2 BYTE 0
 
+;Placar e pontuação
+Score BYTE       "    SCORE: ",0
+NovoRecorde BYTE "NOVO RECORDE: ",0
+Pontos DWORD 0
+Recorde DWORD 0
 
 ; Logo do jogo
-logo BYTE "                      ____                            _   _   _             _    _ _ ",0ah, 0dh  
+logo BYTE "                       ____                            _   _   _             _    _ _ ",0ah, 0dh  
 	 BYTE "	              / ___| __ _ _ __  ___  ___      / \ | |_| |_ __ _  ___| | _| | |",0ah, 0dh  
 	 BYTE "	             | |  _ / _` | '_ \/ __|/ _ \    / _ \| __| __/ _` |/ __| |/ / | |",0ah, 0dh  
 	 BYTE "	             | |_| | (_| | | | \__ \ (_) |  / ___ \ |_| || (_| | (__|   <|_|_|",0ah, 0dh  
@@ -60,7 +66,7 @@ logo BYTE "                      ____                            _   _   _      
  menu   BYTE "Selecione uma dificuldade para jogar:",0ah, 0dh, 0ah
 		BYTE "				              1 - Facil",0ah, 0dh
 		BYTE "				              2 - Dificil",0ah, 0dh
-        BYTE "				              ESC - SAIR",0ah, 0dh
+        BYTE "				            ESC - SAIR",0ah, 0dh
 		BYTE "				",0
 		
 ;Ganso
@@ -82,15 +88,6 @@ ganso_agachado4		BYTE                "<        /  ",0ah,0dh,0
 ganso_agachado5		BYTE                  "\_   _/   ",0ah,0dh,0  
 ganso_agachado6		BYTE                   "|   |     ",0ah,0dh,0  
 ganso_agachado7		BYTE                   "^   ^     ",0
-				
-; Obstaculos
-;obstaculo1 	BYTE "!!!!!",0ah,0dh
-;			BYTE "!   !",0ah,0dh
-;			BYTE "!   !",0ah,0dh,0
-			
-;obstaculo2  BYTE " /",0ah,0dh
-;			BYTE "x----",0ah,0dh
-;			BYTE " \ ",0ah,0dh,0
 
 nuvem   BYTE "		                                         ____     ____        ",0ah,0dh 
     	BYTE "	                                              __/    \___/    \____   ",0ah,0dh 
@@ -100,8 +97,6 @@ nuvem   BYTE "		                                         ____     ____        ",
         BYTE "	                                                 \____/  \       /    ",0ah,0dh 
         BYTE " 			                                          \_____/     ",0 
 
-
-
 sol     BYTE"          \     /      ",0ah,0dh 
         BYTE"            \___/       ",0ah,0dh
         BYTE"           /     \      ",0ah,0dh
@@ -110,6 +105,17 @@ sol     BYTE"          \     /      ",0ah,0dh
         BYTE"           /     \      ",0ah,0dh
         BYTE"          /       \     ",0
 
+gameover BYTE "                     _____          __  __ ______    ______      ________ _____",0ah,0dh   
+	 BYTE "                     / ____|   /\   |  \/  |  ____|  / __ \ \    / /  ____|  __ \",0ah,0dh  
+	 BYTE "                    | |  __   /  \  | \  / | |__    | |  | \ \  / /| |__  | |__) |",0ah,0dh 
+	 BYTE "                    | | |_ | / /\ \ | |\/| |  __|   | |  | |\ \/ / |  __| |  _  /",0ah,0dh  
+	 BYTE "                    | |__| |/ ____ \| |  | | |____  | |__| | \  /  | |____| | \ \ ",0ah,0dh 
+	 BYTE "                     \_____/_/    \_\_|  |_|______|  \____/   \/   |______|_|  \_\",0
+	
+menuFinal BYTE "                                             Selecione uma opcao:",0ah, 0dh, 0ah
+		  BYTE "				                1 - Menu inicial",0ah, 0dh
+          BYTE "				              ESC - SAIR",0
+	
 .code
 ;==================Desenha o menu inicial ==========================
 ;Recebe: nda
@@ -508,16 +514,23 @@ InicializaJogo PROC
 InicializaJogo ENDP
 ;====================================================================
 
-;============================Perdeu==================================
-;Recebe: nda
-;Retorna: tela de game over
+;==========================Pontuação=================================
+;Recebe: Pontuação
+;Retorna: pontuação no canto direito da tela
 ;====================================================================
+Pontuacao PROC
+	mov eax, green
+	call SetTextColor
+	mov dl, X_SCORE
+	mov dh, Y_SCORE
+	call GotoXY
+	mov edx , OFFSET Score
+	call WriteString
 
-Perdeu PROC
-	call Clrscr
+	mov eax, Pontos
+	call WriteDec
 	ret
-Perdeu ENDP
-
+Pontuacao ENDP
 
 ;=====================Cria Obstaculo ================================
 ;Gera os obstáculos de forma aleatória
@@ -549,12 +562,13 @@ CriaObstaculo ENDP
 ;====================================================================
 
 ;=======================JOGO=========================================
-;Rotina do jogo. Faz a leitura da tecla de salto(W) e agachamento (S) e chama os 
-;procedimentos de movimentação e criação de obstaculos
+;Rotina do jogo. Faz a leitura da tecla de salto(W) e agachamento (S), chama os 
+;procedimentos de movimentação e criação de obstaculos e testa colisões
 ;Recebe: nda
 ;Retorna: jogo na tela
 ;====================================================================
 Jogo PROC
+	call InicializaJogo
 	JOGO_LOOP:
 		mov eax, 50
 		call Delay
@@ -585,17 +599,19 @@ Jogo PROC
 			cmp statusGanso, 2
 			jne NPULANDO
 				mov PosY, Y_GANSO_PULANDO
+			    mov alturaO,ALTURA_GANSO
 				jmp DELETA_
 			NPULANDO:
 			cmp statusGanso, 1
 			jne AGACHADO_
 				mov PosY, Y_GANSO_EM_PE
+				mov alturaO,ALTURA_GANSO
 				jmp DELETA_
 			AGACHADO_:
-				jmp DELAY_MOVIMENTO
+				mov PosY, Y_GANSO_AGACHADO
+				mov alturaO,ALTURA_GANSO_AGACHADO
 			DELETA_:
 			mov larguraO, LARGURA_GANSO
-			mov alturaO,ALTURA_GANSO
 			call DeletaDesenho
 			;Desenhando o Ganso Agachado
 			mov PosY, Y_GANSO_AGACHADO
@@ -642,26 +658,28 @@ Jogo PROC
 		.ENDIF
 		
 		ATUALIZA_OBSTACULOS:
-		.IF contadorTempo == 500
+		.IF contadorTempo == 100    ;500
 			call AtualizaObstaculos
 			mov contadorTempo, 0
-			jmp OBSTACULOS
+			inc Pontos
+			call Pontuacao
+			jmp TESTA_COLISAO
 		.ENDIF
 
-		OBSTACULOS:
+		TESTA_COLISAO:
+		.IF (PosObs1[0] <= 23 && PosObs1[0] >= 13 && statusGanso != 2) || (PosObs2[0] <= 27 && PosObs2[0] >= 20 && statusGanso != 0 ) || (PosObs2[0] <= 25 && PosObs2[0] >= 11 && statusGanso == 2)
+			jmp PERDEU_
+		.ENDIF
+
 		.IF contadorObstaculo >= 2500
 			call CriaObstaculo
 			mov contadorObstaculo, 0
-			jmp TESTA_COLISAO
+			jmp JOGO_LOOP
 		.ENDIF
 		
-		TESTA_COLISAO:
-		.IF (PosObs1[0]==20 && statusGanso != 2) ||  (PosObs2[0]==20 && statusGanso != 0)
-			call Perdeu
-			jmp FIM
-		.ENDIF
+		
 	jmp JOGO_LOOP
-FIM:
+	PERDEU_:
 	ret
 Jogo ENDP
 ;====================================================================
@@ -669,7 +687,7 @@ Jogo ENDP
 ;=======================Atualiza Obstaculos==========================
 ;Atualiza posição de todos os obstáculos desenhados na tela
 ;Recebe: Lista com posição dos obstáculos existentes
-;Retorna: Lista de posições atualizada
+;Retorna: Lista de posições atualizada e desenhos nas novas posições
 ;====================================================================
 AtualizaObstaculos PROC USES ecx
 	;Obstaculos do tipo 1 =============================
@@ -688,8 +706,8 @@ AtualizaObstaculos PROC USES ecx
 		call DeletaDesenho
 
 		;Desenhando na nova posição
-		.IF PosX >= 6 
-			sub PosX, 5
+		.IF PosX >= 3 	;PosX >= 6
+			dec PosX     ;sub PosX, 5
 			mov bl, PosX
 			mov PosObs1[ecx], bl
 			mov PosX, bl
@@ -706,7 +724,6 @@ AtualizaObstaculos PROC USES ecx
 		inc ecx
 	loop PERCORRE1
 	;=================================================
-
 	;Obstáculos do tipo 2 ============================
 	TIPO2:
 	mov cl, CtrlObs2
@@ -723,8 +740,8 @@ AtualizaObstaculos PROC USES ecx
 		call DeletaDesenho
 
 		;Desenhando na nova posição
-		.IF PosX >= 6
-			sub PosX, 5
+		.IF PosX >= 3
+			dec PosX
 			mov bl, PosX
 			mov PosObs2[ecx], bl
 			mov PosX, bl
@@ -741,7 +758,6 @@ AtualizaObstaculos PROC USES ecx
 		inc ecx
 	loop PERCORRE2
 	;=================================================
-
 	SAIR:
 	ret
 AtualizaObstaculos ENDP
@@ -749,7 +765,7 @@ AtualizaObstaculos ENDP
 
 ;=====================Shift Vetor Posição=========================
 ;Recebe: edx = OFFSET do Vetor, ebx = numero de elementos do vetor -1
-;retorna: 
+;retorna: vetor shiftado para a esquerda
 ;====================================================================
 ShiftLeftVetorPosicao PROC USES ecx ebx edx
 	mov ecx, ebx
@@ -775,29 +791,105 @@ ShiftLeftVetorPosicao PROC USES ecx ebx edx
 ShiftLeftVetorPosicao ENDP
 ;====================================================================
 
-main PROC
-	;INVOKE GetStdHandle,STD_OUTPUT_HANDLE 
-	;mov outHandle, eax										;DESCOBRIR O QUE FAZ (???)
-	;INVOKE SetConsoleScreenBufferSize,outHandle,scrSize
+;========================Reset ======================================
+;Recebe: CtrlObs1, CtrlObs2, contadores de tempo, e Pontos
+;Retorna: CtrlObs1 = 0 e CtrlObs2 = 0, todos os contadores = 0 e Pontos = 0
+;====================================================================
+Reset PROC
+	mov CtrlObs1, 0
+	mov CtrlObs2, 0
+	mov contadorTempo, 0
+	mov contadorObstaculo, 0
+	mov contadorPulo, 0
+	mov contadorAgacha, 0
+	mov PosObs1, 0
+	mov PosObs2, 0
+	mov Pontos, 0
+	ret
+Reset ENDP
+;====================================================================
+;============================Perdeu==================================
+;Recebe: nda
+;Retorna: tela de game over
+;====================================================================
+Perdeu PROC
 	call Clrscr
+	mov eax, red
+	call SetTextColor
+	mov dl, 1
+	mov dh, 10
+	call GotoXY
+	mov edx, OFFSET gameover
+	call WriteString
+	mov eax, white
+	call SetTextColor
+
+	mov dl, 1
+	mov dh, 22
+	call GotoXY
+	mov edx, OFFSET menuFinal
+	call WriteString
+	mov eax, red
+	call SetTextColor
+	call Moldura
+
+	;RESULTADO FINAL
+	mov eax, white
+	call SetTextColor
+	mov dl, 45
+	mov dh, 18
+	call GotoXY
+	mov eax, Pontos
+	.IF eax > Recorde
+		mov edx, OFFSET NovoRecorde
+		call WriteString
+		call Reset
+		call WriteDec
+		mov Recorde, eax
+		jmp ESPERANDO_TECLA
+	.ELSE
+		mov edx, OFFSET Score
+		call WriteString
+		call WriteDec
+		jmp ESPERANDO_TECLA
+	.ENDIF
+
+	ESPERANDO_TECLA:
+		mov  eax,50          ; sleep, to allow OS to time slice
+		call Delay           ; (otherwise, some key presses are lost)
+		call ReadKey         ; look for keyboard input 
+
+		.IF al == "1"
+			jmp MENU_
+		.ELSEIF al == VK_ESCAPE
+			exit
+		.ENDIF
+	jmp   ESPERANDO_TECLA    ; nenhuma tecla válida pressionada, tenta novamente
 	
+	MENU_:
+	call Reset
+	ret
+Perdeu ENDP
+;====================================================================
+
+main PROC
+	MENU_:
+	call Clrscr
 	;Desenha menu
 	call DesenhaMenu  
 	mov eax, red     ;cor da moldura
 	call Moldura
 
 	;Esperando tecla ser pressionada
-	EsperandoTecla:
+	ESPERANDO_TECLA:
 		mov  eax,50          ; sleep, to allow OS to time slice
 		call Delay           ; (otherwise, some key presses are lost)
 		call ReadKey         ; look for keyboard input 
-		push edx
 
-	.IF al == "1"
-		;TODO jogo fácil
-		call InicializaJogo
+	.IF al == "1"			 ;JOGO FÁCIL
 		call Jogo
-		jmp SAIR
+		call Perdeu
+		jmp MENU_
 	.ELSEIF al == "2"
 		;TODO jogo dificil
 		call Clrscr
@@ -807,10 +899,10 @@ main PROC
 		exit
 	.ENDIF
 	
-	jmp   EsperandoTecla    ; nenhuma tecla válida pressionada, tenta novamente
-SAIR:
-	mov dh, 40
-	call GotoXY
+	jmp   ESPERANDO_TECLA    ; nenhuma tecla válida pressionada, tenta novamente
+	SAIR:
+		mov dh, 40
+		call GotoXY
 	exit
 main ENDP
 END main
