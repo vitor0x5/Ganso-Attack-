@@ -57,7 +57,7 @@ logo BYTE "                      ____                            _   _   _      
 	 BYTE "	              \____|\__,_|_| |_|___/\___/  /_/   \_\__|\__\__,_|\___|_|\_(_|_)",0ah, 0dh, 0 
 
 ; MENU
- menu   BYTE "	                  Selecione uma dificuldade para jogar:",0ah, 0dh, 0ah
+ menu   BYTE "Selecione uma dificuldade para jogar:",0ah, 0dh, 0ah
 		BYTE "				              1 - Facil",0ah, 0dh
 		BYTE "				              2 - Dificil",0ah, 0dh
         BYTE "				              ESC - SAIR",0ah, 0dh
@@ -125,7 +125,8 @@ DesenhaMenu PROC
     call WriteString
 
 	mov eax, white
-	call SetTextColor 
+	call SetTextColor
+	mov dl,32
 	mov dh, 15
 	call GotoXY
     mov edx, OFFSET menu   
@@ -537,7 +538,7 @@ CriaObstaculo ENDP
 ;====================================================================
 
 ;=======================JOGO=========================================
-;Rotina do jogo. Faz a leitura da tecla de salto(W) e chama os 
+;Rotina do jogo. Faz a leitura da tecla de salto(W) e agachamento (S) e chama os 
 ;procedimentos de movimentação e criação de obstaculos
 ;Recebe: nda
 ;Retorna: jogo na tela
@@ -596,7 +597,7 @@ Jogo PROC
 		.ENDIF
 		
 		DELAY_MOVIMENTO:
-		.IF contadorPulo == 1500 && statusGanso == 2
+		.IF contadorPulo == 1700 && statusGanso == 2
 			;Deleta o Ganso no Ar
 			mov statusGanso, 1
 			mov PosX, 16
@@ -617,7 +618,7 @@ Jogo PROC
 			;Deleta o Ganso agachado
 			mov statusGanso, 1
 			mov PosX, 16
-			mov PosY, Y_GANSO_AGACHADO
+			mov PosY, Y_GANSO_AGACHADO-1
 			mov larguraO, LARGURA_GANSO
 			mov alturaO, ALTURA_GANSO
 			call DeletaDesenho
