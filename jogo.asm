@@ -508,6 +508,17 @@ InicializaJogo PROC
 InicializaJogo ENDP
 ;====================================================================
 
+;============================Perdeu==================================
+;Recebe: nda
+;Retorna: tela de game over
+;====================================================================
+
+Perdeu PROC
+	call Clrscr
+	ret
+Perdeu ENDP
+
+
 ;=====================Cria Obstaculo ================================
 ;Gera os obstáculos de forma aleatória
 ;Recebe: nda
@@ -641,10 +652,16 @@ Jogo PROC
 		.IF contadorObstaculo >= 2500
 			call CriaObstaculo
 			mov contadorObstaculo, 0
-			jmp JOGO_LOOP
+			jmp TESTA_COLISAO
+		.ENDIF
+		
+		TESTA_COLISAO:
+		.IF (PosObs1[0]==20 && statusGanso != 2) ||  (PosObs2[0]==20 && statusGanso != 0)
+			call Perdeu
+			jmp FIM
 		.ENDIF
 	jmp JOGO_LOOP
-
+FIM:
 	ret
 Jogo ENDP
 ;====================================================================
