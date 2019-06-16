@@ -645,7 +645,7 @@ Jogo PROC
 			;Deleta o Ganso agachado
 			mov statusGanso, 1
 			mov PosX, 16
-			mov PosY, Y_GANSO_AGACHADO-1
+			mov PosY, Y_GANSO_AGACHADO-2
 			mov larguraO, LARGURA_GANSO
 			mov alturaO, ALTURA_GANSO
 			call DeletaDesenho
@@ -682,6 +682,123 @@ Jogo PROC
 	PERDEU_:
 	ret
 Jogo ENDP
+
+
+Jogo2 PROC
+	call InicializaJogo
+	JOGO_LOOP:
+		mov eax, 25
+		call Delay
+		call ReadKey
+		add contadorTempo, 50
+		add contadorObstaculo, 50
+		add contadorPulo, 50
+		add contadorAgacha, 50
+		
+		.IF al == "w"        ;Faz o Ganso Pular
+			;Deletando o Desenho do Ganso
+			mov statusGanso, 2
+			mov PosX,16
+			mov PosY, Y_GANSO_EM_PE
+			mov larguraO, LARGURA_GANSO
+			mov alturaO,ALTURA_GANSO
+			call DeletaDesenho
+			;Desenhando o Ganso no Ar
+			mov PosY, Y_GANSO_PULANDO
+			mov contadorPulo, 0
+			mov contadorAgacha, 0
+			call DesenhaGansoEmPe2
+			jmp DELAY_MOVIMENTO
+		
+		.ELSEIF al ==  "s"    ;Faz o Ganso Agachar
+			;Deletando o Desenho do Ganso
+			mov PosX,16
+			cmp statusGanso, 2
+			jne NPULANDO
+				mov PosY, Y_GANSO_PULANDO
+			    mov alturaO,ALTURA_GANSO
+				jmp DELETA_
+			NPULANDO:
+			cmp statusGanso, 1
+			jne AGACHADO_
+				mov PosY, Y_GANSO_EM_PE
+				mov alturaO,ALTURA_GANSO
+				jmp DELETA_
+			AGACHADO_:
+				mov PosY, Y_GANSO_AGACHADO
+				mov alturaO,ALTURA_GANSO_AGACHADO
+			DELETA_:
+			mov larguraO, LARGURA_GANSO
+			call DeletaDesenho
+			;Desenhando o Ganso Agachado
+			mov PosY, Y_GANSO_AGACHADO
+			mov contadorAgacha, 0
+			mov contadorPulo, 0
+			call DesenhaGansoAgachado2
+			mov statusGanso, 0
+			jmp DELAY_MOVIMENTO
+			
+		.ENDIF
+		
+		DELAY_MOVIMENTO:
+		.IF contadorPulo == 1700 && statusGanso == 2
+			;Deleta o Ganso no Ar
+			mov statusGanso, 1
+			mov PosX, 16
+			mov PosY, Y_GANSO_PULANDO
+			mov larguraO, LARGURA_GANSO
+			mov alturaO, ALTURA_GANSO
+			call DeletaDesenho
+			;Desenha o Ganso de volta ao chao
+			mov PosY, Y_GANSO_EM_PE
+			call DesenhaGansoEmPe2
+			
+			mov contadorPulo, 0
+			jmp DELAY_MOVIMENTO2
+		.ENDIF
+
+		DELAY_MOVIMENTO2:
+		.IF contadorAgacha == 1500 && statusGanso == 0
+			;Deleta o Ganso agachado
+			mov statusGanso, 1
+			mov PosX, 16
+			mov PosY, Y_GANSO_AGACHADO-2
+			mov larguraO, LARGURA_GANSO
+			mov alturaO, ALTURA_GANSO
+			call DeletaDesenho
+			;Desenha o Ganso de volta ao chao
+			mov PosY, Y_GANSO_EM_PE
+			call DesenhaGansoEmPe2
+			
+			mov contadorAgacha, 0
+			jmp ATUALIZA_OBSTACULOS
+		.ENDIF
+		
+		ATUALIZA_OBSTACULOS:
+		.IF contadorTempo == 100    ;500
+			call AtualizaObstaculos
+			mov contadorTempo, 0
+			inc Pontos
+			call Pontuacao
+			jmp TESTA_COLISAO
+		.ENDIF
+
+		TESTA_COLISAO:
+		.IF (PosObs1[0] <= 23 && PosObs1[0] >= 13 && statusGanso != 2) || (PosObs2[0] <= 27 && PosObs2[0] >= 20 && statusGanso != 0 ) || (PosObs2[0] <= 25 && PosObs2[0] >= 11 && statusGanso == 2)
+			jmp PERDEU_
+		.ENDIF
+
+		.IF contadorObstaculo >= 2500
+			call CriaObstaculo
+			mov contadorObstaculo, 0
+			jmp JOGO_LOOP
+		.ENDIF
+		
+		
+	jmp JOGO_LOOP
+	PERDEU_:
+	ret
+Jogo2 ENDP
 ;====================================================================
 
 ;=======================Atualiza Obstaculos==========================
@@ -891,10 +1008,9 @@ main PROC
 		call Perdeu
 		jmp MENU_
 	.ELSEIF al == "2"
-		;TODO jogo dificil
-		call Clrscr
-		call moldura
-		jmp SAIR
+		call Jogo2
+		call Perdeu
+		jmp MENU_
 	.ELSEIF al == VK_ESCAPE
 		exit
 	.ENDIF

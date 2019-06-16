@@ -1,4 +1,4 @@
-Microsoft (R) Macro Assembler Version 14.16.27030.1	    06/15/19 18:54:54
+Microsoft (R) Macro Assembler Version 14.16.27027.1	    06/15/19 19:17:23
 jogo.asm						     Page 1 - 1
 
 
@@ -491,7 +491,7 @@ jogo.asm						     Page 1 - 1
 	   5F 7C 20 20 5C
 	   5F 5C 00
 					
- 0000079C 20 20 20 20 20	menuFinal BYTE "                                            Selecione uma opcao:",0ah, 0dh, 0ah
+ 0000079C 20 20 20 20 20	menuFinal BYTE "                                             Selecione uma opcao:",0ah, 0dh, 0ah
 	   20 20 20 20 20
 	   20 20 20 20 20
 	   20 20 20 20 20
@@ -499,13 +499,13 @@ jogo.asm						     Page 1 - 1
 	   20 20 20 20 20
 	   20 20 20 20 20
 	   20 20 20 20 20
-	   20 20 20 20 53
-	   65 6C 65 63 69
-	   6F 6E 65 20 75
-	   6D 61 20 6F 70
-	   63 61 6F 3A 0A
-	   0D 0A
- 000007DF  09 09 09 09 20			  BYTE "				                1 - Menu inicial",0ah, 0dh
+	   20 20 20 20 20
+	   53 65 6C 65 63
+	   69 6F 6E 65 20
+	   75 6D 61 20 6F
+	   70 63 61 6F 3A
+	   0A 0D 0A
+ 000007E0  09 09 09 09 20			  BYTE "				                1 - Menu inicial",0ah, 0dh
 	   20 20 20 20 20
 	   20 20 20 20 20
 	   20 20 20 20 20
@@ -513,7 +513,7 @@ jogo.asm						     Page 1 - 1
 	   65 6E 75 20 69
 	   6E 69 63 69 61
 	   6C 0A 0D
- 00000805  09 09 09 09 20	          BYTE "				              ESC - SAIR",0
+ 00000806  09 09 09 09 20	          BYTE "				              ESC - SAIR",0
 	   20 20 20 20 20
 	   20 20 20 20 20
 	   20 20 20 45 53
@@ -1163,8 +1163,8 @@ jogo.asm						     Page 1 - 1
 	   01
  000005CC  C6 05 00000011 R				mov PosX, 16
 	   10
- 000005D3  C6 05 00000010 R				mov PosY, Y_GANSO_AGACHADO-1
-	   15
+ 000005D3  C6 05 00000010 R				mov PosY, Y_GANSO_AGACHADO-2
+	   14
  000005DA  C6 05 00000012 R				mov larguraO, LARGURA_GANSO
 	   0C
  000005E1  C6 05 00000013 R				mov alturaO, ALTURA_GANSO
@@ -1186,7 +1186,7 @@ jogo.asm						     Page 1 - 1
  00000605  83 3D 00000000 R
 	   64		   *	    cmp    contadorTempo, 064h
  0000060C  75 1C	   *	    jne    @C0011
- 0000060E  E8 00000090					call AtualizaObstaculos
+ 0000060E  E8 000002DE					call AtualizaObstaculos
  00000613  C7 05 00000000 R				mov contadorTempo, 0
 	   00000000
  0000061D  FF 05 00000040 R				inc Pontos
@@ -1247,6 +1247,226 @@ jogo.asm						     Page 1 - 1
  000006A2				PERDEU_:
  000006A2  C3				ret
  000006A3			Jogo ENDP
+
+
+ 000006A3			Jogo2 PROC
+ 000006A3  E8 FFFFFD01			call InicializaJogo
+ 000006A8				JOGO_LOOP:
+ 000006A8  B8 00000019				mov eax, 25
+ 000006AD  E8 00000000 E			call Delay
+ 000006B2  E8 00000000 E			call ReadKey
+ 000006B7  83 05 00000000 R			add contadorTempo, 50
+	   32
+ 000006BE  83 05 00000004 R			add contadorObstaculo, 50
+	   32
+ 000006C5  83 05 00000008 R			add contadorPulo, 50
+	   32
+ 000006CC  83 05 0000000C R			add contadorAgacha, 50
+	   32
+						
+						.IF al == "w"        ;Faz o Ganso Pular
+ 000006D3  3C 77	   *	    cmp    al, 'w'
+ 000006D5  75 52	   *	    jne    @C001F
+							;Deletando o Desenho do Ganso
+ 000006D7  C6 05 00000014 R				mov statusGanso, 2
+	   02
+ 000006DE  C6 05 00000011 R				mov PosX,16
+	   10
+ 000006E5  C6 05 00000010 R				mov PosY, Y_GANSO_EM_PE
+	   14
+ 000006EC  C6 05 00000012 R				mov larguraO, LARGURA_GANSO
+	   0C
+ 000006F3  C6 05 00000013 R				mov alturaO,ALTURA_GANSO
+	   09
+ 000006FA  E8 FFFFFB7A					call DeletaDesenho
+							;Desenhando o Ganso no Ar
+ 000006FF  C6 05 00000010 R				mov PosY, Y_GANSO_PULANDO
+	   0F
+ 00000706  C7 05 00000008 R				mov contadorPulo, 0
+	   00000000
+ 00000710  C7 05 0000000C R				mov contadorAgacha, 0
+	   00000000
+ 0000071A  E8 FFFFF9C2					call DesenhaGansoEmPe2
+ 0000071F  E9 00000085					jmp DELAY_MOVIMENTO
+						
+						.ELSEIF al ==  "s"    ;Faz o Ganso Agachar
+ 00000724  E9 00000080	   *	    jmp    @C0021
+ 00000729		   *@C001F:
+ 00000729  3C 73	   *	    cmp    al, 's'
+ 0000072B  75 7C	   *	    jne    @C0022
+							;Deletando o Desenho do Ganso
+ 0000072D  C6 05 00000011 R				mov PosX,16
+	   10
+ 00000734  80 3D 00000014 R				cmp statusGanso, 2
+	   02
+ 0000073B  75 10					jne NPULANDO
+ 0000073D  C6 05 00000010 R					mov PosY, Y_GANSO_PULANDO
+	   0F
+ 00000744  C6 05 00000013 R				    mov alturaO,ALTURA_GANSO
+	   09
+ 0000074B  EB 27						jmp DELETA_
+ 0000074D						NPULANDO:
+ 0000074D  80 3D 00000014 R				cmp statusGanso, 1
+	   01
+ 00000754  75 10					jne AGACHADO_
+ 00000756  C6 05 00000010 R					mov PosY, Y_GANSO_EM_PE
+	   14
+ 0000075D  C6 05 00000013 R					mov alturaO,ALTURA_GANSO
+	   09
+ 00000764  EB 0E						jmp DELETA_
+ 00000766						AGACHADO_:
+ 00000766  C6 05 00000010 R					mov PosY, Y_GANSO_AGACHADO
+	   16
+ 0000076D  C6 05 00000013 R					mov alturaO,ALTURA_GANSO_AGACHADO
+	   07
+ 00000774						DELETA_:
+ 00000774  C6 05 00000012 R				mov larguraO, LARGURA_GANSO
+	   0C
+ 0000077B  E8 FFFFFAF9					call DeletaDesenho
+							;Desenhando o Ganso Agachado
+ 00000780  C6 05 00000010 R				mov PosY, Y_GANSO_AGACHADO
+	   16
+ 00000787  C7 05 0000000C R				mov contadorAgacha, 0
+	   00000000
+ 00000791  C7 05 00000008 R				mov contadorPulo, 0
+	   00000000
+ 0000079B  E8 FFFFFA11					call DesenhaGansoAgachado2
+ 000007A0  C6 05 00000014 R				mov statusGanso, 0
+	   00
+ 000007A7  EB 00					jmp DELAY_MOVIMENTO
+							
+						.ENDIF
+ 000007A9		   *@C0022:
+ 000007A9		   *@C0021:
+						
+ 000007A9					DELAY_MOVIMENTO:
+						.IF contadorPulo == 1700 && statusGanso == 2
+ 000007A9  81 3D 00000008 R
+	   000006A4	   *	    cmp    contadorPulo, 006A4h
+ 000007B3  75 49	   *	    jne    @C0024
+ 000007B5  80 3D 00000014 R
+	   02		   *	    cmp    statusGanso, 002h
+ 000007BC  75 40	   *	    jne    @C0024
+							;Deleta o Ganso no Ar
+ 000007BE  C6 05 00000014 R				mov statusGanso, 1
+	   01
+ 000007C5  C6 05 00000011 R				mov PosX, 16
+	   10
+ 000007CC  C6 05 00000010 R				mov PosY, Y_GANSO_PULANDO
+	   0F
+ 000007D3  C6 05 00000012 R				mov larguraO, LARGURA_GANSO
+	   0C
+ 000007DA  C6 05 00000013 R				mov alturaO, ALTURA_GANSO
+	   09
+ 000007E1  E8 FFFFFA93					call DeletaDesenho
+							;Desenha o Ganso de volta ao chao
+ 000007E6  C6 05 00000010 R				mov PosY, Y_GANSO_EM_PE
+	   14
+ 000007ED  E8 FFFFF8EF					call DesenhaGansoEmPe2
+							
+ 000007F2  C7 05 00000008 R				mov contadorPulo, 0
+	   00000000
+ 000007FC  EB 00					jmp DELAY_MOVIMENTO2
+						.ENDIF
+ 000007FE		   *@C0024:
+
+ 000007FE					DELAY_MOVIMENTO2:
+						.IF contadorAgacha == 1500 && statusGanso == 0
+ 000007FE  81 3D 0000000C R
+	   000005DC	   *	    cmp    contadorAgacha, 005DCh
+ 00000808  75 49	   *	    jne    @C0027
+ 0000080A  80 3D 00000014 R
+	   00		   *	    cmp    statusGanso, 000h
+ 00000811  75 40	   *	    jne    @C0027
+							;Deleta o Ganso agachado
+ 00000813  C6 05 00000014 R				mov statusGanso, 1
+	   01
+ 0000081A  C6 05 00000011 R				mov PosX, 16
+	   10
+ 00000821  C6 05 00000010 R				mov PosY, Y_GANSO_AGACHADO-2
+	   14
+ 00000828  C6 05 00000012 R				mov larguraO, LARGURA_GANSO
+	   0C
+ 0000082F  C6 05 00000013 R				mov alturaO, ALTURA_GANSO
+	   09
+ 00000836  E8 FFFFFA3E					call DeletaDesenho
+							;Desenha o Ganso de volta ao chao
+ 0000083B  C6 05 00000010 R				mov PosY, Y_GANSO_EM_PE
+	   14
+ 00000842  E8 FFFFF89A					call DesenhaGansoEmPe2
+							
+ 00000847  C7 05 0000000C R				mov contadorAgacha, 0
+	   00000000
+ 00000851  EB 00					jmp ATUALIZA_OBSTACULOS
+						.ENDIF
+ 00000853		   *@C0027:
+						
+ 00000853					ATUALIZA_OBSTACULOS:
+						.IF contadorTempo == 100    ;500
+ 00000853  83 3D 00000000 R
+	   64		   *	    cmp    contadorTempo, 064h
+ 0000085A  75 1C	   *	    jne    @C002A
+ 0000085C  E8 00000090					call AtualizaObstaculos
+ 00000861  C7 05 00000000 R				mov contadorTempo, 0
+	   00000000
+ 0000086B  FF 05 00000040 R				inc Pontos
+ 00000871  E8 FFFFFB59					call Pontuacao
+ 00000876  EB 00					jmp TESTA_COLISAO
+						.ENDIF
+ 00000878		   *@C002A:
+
+ 00000878					TESTA_COLISAO:
+						.IF (PosObs1[0] <= 23 && PosObs1[0] >= 13 && statusGanso != 2) || (PosObs2[0] <= 27 && PosObs2[0] >= 20 && statusGanso != 0 ) || (PosObs2[0] <= 25 && PosObs2[0] >= 11 && statusGanso == 2)
+ 00000878  80 3D 00000015 R
+	   17		   *	    cmp    PosObs1 + [000h], 017h
+ 0000087F  77 12	   *	    ja	@C002F
+ 00000881  80 3D 00000015 R
+	   0D		   *	    cmp    PosObs1 + [000h], 00Dh
+ 00000888  72 09	   *	    jb	@C002F
+ 0000088A  80 3D 00000014 R
+	   02		   *	    cmp    statusGanso, 002h
+ 00000891  75 36	   *	    jne    @C002D
+ 00000893		   *@C002F:
+ 00000893  80 3D 0000001C R
+	   1B		   *	    cmp    PosObs2 + [000h], 01Bh
+ 0000089A  77 12	   *	    ja	@C002E
+ 0000089C  80 3D 0000001C R
+	   14		   *	    cmp    PosObs2 + [000h], 014h
+ 000008A3  72 09	   *	    jb	@C002E
+ 000008A5  80 3D 00000014 R
+	   00		   *	    cmp    statusGanso, 000h
+ 000008AC  75 1B	   *	    jne    @C002D
+ 000008AE		   *@C002E:
+ 000008AE  80 3D 0000001C R
+	   19		   *	    cmp    PosObs2 + [000h], 019h
+ 000008B5  77 14	   *	    ja	@C002C
+ 000008B7  80 3D 0000001C R
+	   0B		   *	    cmp    PosObs2 + [000h], 00Bh
+ 000008BE  72 0B	   *	    jb	@C002C
+ 000008C0  80 3D 00000014 R
+	   02		   *	    cmp    statusGanso, 002h
+ 000008C7  75 02	   *	    jne    @C002C
+ 000008C9		   *@C002D:
+ 000008C9  EB 25					jmp PERDEU_
+						.ENDIF
+ 000008CB		   *@C002C:
+
+						.IF contadorObstaculo >= 2500
+ 000008CB  81 3D 00000004 R
+	   000009C4	   *	    cmp    contadorObstaculo, 009C4h
+ 000008D5  72 14	   *	    jb	@C0036
+ 000008D7  E8 FFFFFB1B					call CriaObstaculo
+ 000008DC  C7 05 00000004 R				mov contadorObstaculo, 0
+	   00000000
+ 000008E6  E9 FFFFFDBD					jmp JOGO_LOOP
+						.ENDIF
+ 000008EB		   *@C0036:
+						
+						
+ 000008EB  E9 FFFFFDB8			jmp JOGO_LOOP
+ 000008F0				PERDEU_:
+ 000008F0  C3				ret
+ 000008F1			Jogo2 ENDP
 				;====================================================================
 
 				;=======================Atualiza Obstaculos==========================
@@ -1254,293 +1474,292 @@ jogo.asm						     Page 1 - 1
 				;Recebe: Lista com posição dos obstáculos existentes
 				;Retorna: Lista de posições atualizada e desenhos nas novas posições
 				;====================================================================
- 000006A3			AtualizaObstaculos PROC USES ecx
+ 000008F1			AtualizaObstaculos PROC USES ecx
 					;Obstaculos do tipo 1 =============================
- 000006A3  51		   *	    push   ecx
- 000006A4  B9 00000000			mov ecx, 0
- 000006A9  8A 0D 00000023 R		mov cl, CtrlObs1
- 000006AF  80 F9 00			cmp cl, 0
- 000006B2  74 6C			je TIPO2	;Se não existir obstáculo do tipo 1 pula para tipo 2
- 000006B4				PERCORRE1:
+ 000008F1  51		   *	    push   ecx
+ 000008F2  B9 00000000			mov ecx, 0
+ 000008F7  8A 0D 00000023 R		mov cl, CtrlObs1
+ 000008FD  80 F9 00			cmp cl, 0
+ 00000900  74 6C			je TIPO2	;Se não existir obstáculo do tipo 1 pula para tipo 2
+ 00000902				PERCORRE1:
 						;Deletando objeto1 da posição PosObs1[ecx]
- 000006B4  49					dec ecx
- 000006B5  8A 99 00000015 R			mov bl, PosObs1[ecx]
- 000006BB  88 1D 00000011 R			mov PosX, bl
- 000006C1  C6 05 00000010 R			mov PosY, Y_OBSTACULO1
+ 00000902  49					dec ecx
+ 00000903  8A 99 00000015 R			mov bl, PosObs1[ecx]
+ 00000909  88 1D 00000011 R			mov PosX, bl
+ 0000090F  C6 05 00000010 R			mov PosY, Y_OBSTACULO1
 	   1A
- 000006C8  C6 05 00000012 R			mov larguraO, LARGURA_OBJ1
+ 00000916  C6 05 00000012 R			mov larguraO, LARGURA_OBJ1
 	   05
- 000006CF  C6 05 00000013 R			mov alturaO, ALTURA_OBJ1
+ 0000091D  C6 05 00000013 R			mov alturaO, ALTURA_OBJ1
 	   03
- 000006D6  E8 FFFFFB9E				call DeletaDesenho
+ 00000924  E8 FFFFF950				call DeletaDesenho
 
-						;Desenhando na nova posição
+		;Desenhando na nova posição
 						.IF PosX >= 3 	;PosX >= 6
- 000006DB  80 3D 00000011 R
+ 00000929  80 3D 00000011 R
 	   03		   *	    cmp    PosX, 003h
- 000006E2  72 21	   *	    jb	@C001F
- 000006E4  FE 0D 00000011 R				dec PosX     ;sub PosX, 5
- 000006EA  8A 1D 00000011 R				mov bl, PosX
- 000006F0  88 99 00000015 R				mov PosObs1[ecx], bl
- 000006F6  88 1D 00000011 R				mov PosX, bl
- 000006FC  E8 FFFFFBB2					call DesenhaObstaculo1
- 00000701  EB 1A					jmp INCREMENTA1
+ 00000930  72 21	   *	    jb	@C0038
+ 00000932  FE 0D 00000011 R				dec PosX     ;sub PosX, 5
+ 00000938  8A 1D 00000011 R				mov bl, PosX
+ 0000093E  88 99 00000015 R				mov PosObs1[ecx], bl
+ 00000944  88 1D 00000011 R				mov PosX, bl
+ 0000094A  E8 FFFFF964					call DesenhaObstaculo1
+ 0000094F  EB 1A					jmp INCREMENTA1
 						.ELSE
- 00000703  EB 18	   *	    jmp    @C0021
- 00000705		   *@C001F:
- 00000705  BA 00000015 R				mov edx, OFFSET PosObs1
- 0000070A  FE 0D 00000023 R				dec CtrlObs1
- 00000710  8A 1D 00000023 R				mov bl, CtrlObs1
- 00000716  E8 0000007E					call ShiftLeftVetorPosicao
- 0000071B  EB 77					jmp INCREMENTA2
+ 00000951  EB 18	   *	    jmp    @C003A
+ 00000953		   *@C0038:
+ 00000953  BA 00000015 R				mov edx, OFFSET PosObs1
+ 00000958  FE 0D 00000023 R				dec CtrlObs1
+ 0000095E  8A 1D 00000023 R				mov bl, CtrlObs1
+ 00000964  E8 0000007E					call ShiftLeftVetorPosicao
+ 00000969  EB 77					jmp INCREMENTA2
 						.ENDIF
- 0000071D		   *@C0021:
- 0000071D					INCREMENTA1:
- 0000071D  41					inc ecx
- 0000071E  E2 94			loop PERCORRE1
+ 0000096B		   *@C003A:
+ 0000096B					INCREMENTA1:
+ 0000096B  41					inc ecx
+ 0000096C  E2 94			loop PERCORRE1
 					;=================================================
 					;Obstáculos do tipo 2 ============================
- 00000720				TIPO2:
- 00000720  8A 0D 00000024 R		mov cl, CtrlObs2
- 00000726  80 F9 00			cmp cl, 0
- 00000729  74 6C			je SAIR		;Se não existir obstáculo do tipo 2, sai
- 0000072B				PERCORRE2:
+ 0000096E				TIPO2:
+ 0000096E  8A 0D 00000024 R		mov cl, CtrlObs2
+ 00000974  80 F9 00			cmp cl, 0
+ 00000977  74 6C			je SAIR		;Se não existir obstáculo do tipo 2, sai
+ 00000979				PERCORRE2:
 						;Deletando objeto2 da posição PosObs2[ecx]
- 0000072B  49					dec ecx
- 0000072C  8A 99 0000001C R			mov bl, PosObs2[ecx]
- 00000732  88 1D 00000011 R			mov PosX, bl
- 00000738  C6 05 00000010 R			mov PosY, Y_OBSTACULO2
+ 00000979  49					dec ecx
+ 0000097A  8A 99 0000001C R			mov bl, PosObs2[ecx]
+ 00000980  88 1D 00000011 R			mov PosX, bl
+ 00000986  C6 05 00000010 R			mov PosY, Y_OBSTACULO2
 	   13
- 0000073F  C6 05 00000012 R			mov larguraO, LARGURA_OBJ2
+ 0000098D  C6 05 00000012 R			mov larguraO, LARGURA_OBJ2
 	   05
- 00000746  C6 05 00000013 R			mov alturaO, ALTURA_OBJ2
+ 00000994  C6 05 00000013 R			mov alturaO, ALTURA_OBJ2
 	   03
- 0000074D  E8 FFFFFB27				call DeletaDesenho
+ 0000099B  E8 FFFFF8D9				call DeletaDesenho
 
 						;Desenhando na nova posição
 						.IF PosX >= 3
- 00000752  80 3D 00000011 R
+ 000009A0  80 3D 00000011 R
 	   03		   *	    cmp    PosX, 003h
- 00000759  72 21	   *	    jb	@C0022
- 0000075B  FE 0D 00000011 R				dec PosX
- 00000761  8A 1D 00000011 R				mov bl, PosX
- 00000767  88 99 0000001C R				mov PosObs2[ecx], bl
- 0000076D  88 1D 00000011 R				mov PosX, bl
- 00000773  E8 FFFFFB90					call DesenhaObstaculo2
- 00000778  EB 1A					jmp INCREMENTA2
+ 000009A7  72 21	   *	    jb	@C003B
+ 000009A9  FE 0D 00000011 R				dec PosX
+ 000009AF  8A 1D 00000011 R				mov bl, PosX
+ 000009B5  88 99 0000001C R				mov PosObs2[ecx], bl
+ 000009BB  88 1D 00000011 R				mov PosX, bl
+ 000009C1  E8 FFFFF942					call DesenhaObstaculo2
+ 000009C6  EB 1A					jmp INCREMENTA2
 						.ELSE
- 0000077A  EB 18	   *	    jmp    @C0024
- 0000077C		   *@C0022:
- 0000077C  BA 0000001C R				mov edx, OFFSET PosObs2
- 00000781  FE 0D 00000024 R				dec CtrlObs2
- 00000787  8A 1D 00000024 R				mov bl, CtrlObs2
- 0000078D  E8 00000007					call ShiftLeftVetorPosicao
- 00000792  EB 00					jmp INCREMENTA2
+ 000009C8  EB 18	   *	    jmp    @C003D
+ 000009CA		   *@C003B:
+ 000009CA  BA 0000001C R				mov edx, OFFSET PosObs2
+ 000009CF  FE 0D 00000024 R				dec CtrlObs2
+ 000009D5  8A 1D 00000024 R				mov bl, CtrlObs2
+ 000009DB  E8 00000007					call ShiftLeftVetorPosicao
+ 000009E0  EB 00					jmp INCREMENTA2
 						.ENDIF
- 00000794		   *@C0024:
- 00000794					INCREMENTA2:
- 00000794  41					inc ecx
- 00000795  E2 94			loop PERCORRE2
+ 000009E2		   *@C003D:
+ 000009E2					INCREMENTA2:
+ 000009E2  41					inc ecx
+ 000009E3  E2 94			loop PERCORRE2
 					;=================================================
- 00000797				SAIR:
+ 000009E5				SAIR:
 					ret
- 00000797  59		   *	    pop    ecx
- 00000798  C3		   *	    ret    00000h
- 00000799			AtualizaObstaculos ENDP
+ 000009E5  59		   *	    pop    ecx
+ 000009E6  C3		   *	    ret    00000h
+ 000009E7			AtualizaObstaculos ENDP
 				;====================================================================
 
 				;=====================Shift Vetor Posição=========================
 				;Recebe: edx = OFFSET do Vetor, ebx = numero de elementos do vetor -1
 				;retorna: vetor shiftado para a esquerda
 				;====================================================================
- 00000799			ShiftLeftVetorPosicao PROC USES ecx ebx edx
- 00000799  51		   *	    push   ecx
- 0000079A  53		   *	    push   ebx
- 0000079B  52		   *	    push   edx
- 0000079C  8B CB			mov ecx, ebx
- 0000079E  83 F9 00			cmp ecx, 0
- 000007A1  74 0B			je EXCEPTION_ ;Se ecx = 0 loop não funciona corretamente
- 000007A3				PERCORRE:
- 000007A3  42					inc edx
- 000007A4  8A 1A				mov bl, [edx]
- 000007A6  4A					dec edx
- 000007A7  88 1A				mov [edx], bl 
- 000007A9  42					inc edx
- 000007AA  E2 F7			loop PERCORRE
- 000007AC  EB 07			jmp SAIR
+ 000009E7			ShiftLeftVetorPosicao PROC USES ecx ebx edx
+ 000009E7  51		   *	    push   ecx
+ 000009E8  53		   *	    push   ebx
+ 000009E9  52		   *	    push   edx
+ 000009EA  8B CB			mov ecx, ebx
+ 000009EC  83 F9 00			cmp ecx, 0
+ 000009EF  74 0B			je EXCEPTION_ ;Se ecx = 0 loop não funciona corretamente
+ 000009F1				PERCORRE:
+ 000009F1  42					inc edx
+ 000009F2  8A 1A				mov bl, [edx]
+ 000009F4  4A					dec edx
+ 000009F5  88 1A				mov [edx], bl 
+ 000009F7  42					inc edx
+ 000009F8  E2 F7			loop PERCORRE
+ 000009FA  EB 07			jmp SAIR
 
- 000007AE				EXCEPTION_:
- 000007AE  42					inc edx
- 000007AF  8A 1A				mov bl, [edx]
- 000007B1  4A					dec edx
- 000007B2  88 1A				mov [edx], bl 
- 000007B4  42					inc edx
- 000007B5				SAIR:
+ 000009FC				EXCEPTION_:
+ 000009FC  42					inc edx
+ 000009FD  8A 1A				mov bl, [edx]
+ 000009FF  4A					dec edx
+ 00000A00  88 1A				mov [edx], bl 
+ 00000A02  42					inc edx
+ 00000A03				SAIR:
 					ret
- 000007B5  5A		   *	    pop    edx
- 000007B6  5B		   *	    pop    ebx
- 000007B7  59		   *	    pop    ecx
- 000007B8  C3		   *	    ret    00000h
- 000007B9			ShiftLeftVetorPosicao ENDP
+ 00000A03  5A		   *	    pop    edx
+ 00000A04  5B		   *	    pop    ebx
+ 00000A05  59		   *	    pop    ecx
+ 00000A06  C3		   *	    ret    00000h
+ 00000A07			ShiftLeftVetorPosicao ENDP
 				;====================================================================
 
 				;========================Reset ======================================
 				;Recebe: CtrlObs1, CtrlObs2, contadores de tempo, e Pontos
 				;Retorna: CtrlObs1 = 0 e CtrlObs2 = 0, todos os contadores = 0 e Pontos = 0
 				;====================================================================
- 000007B9			Reset PROC
- 000007B9  C6 05 00000023 R		mov CtrlObs1, 0
+ 00000A07			Reset PROC
+ 00000A07  C6 05 00000023 R		mov CtrlObs1, 0
 	   00
- 000007C0  C6 05 00000024 R		mov CtrlObs2, 0
+ 00000A0E  C6 05 00000024 R		mov CtrlObs2, 0
 	   00
- 000007C7  C7 05 00000000 R		mov contadorTempo, 0
+ 00000A15  C7 05 00000000 R		mov contadorTempo, 0
 	   00000000
- 000007D1  C7 05 00000004 R		mov contadorObstaculo, 0
+ 00000A1F  C7 05 00000004 R		mov contadorObstaculo, 0
 	   00000000
- 000007DB  C7 05 00000008 R		mov contadorPulo, 0
+ 00000A29  C7 05 00000008 R		mov contadorPulo, 0
 	   00000000
- 000007E5  C7 05 0000000C R		mov contadorAgacha, 0
+ 00000A33  C7 05 0000000C R		mov contadorAgacha, 0
 	   00000000
- 000007EF  C6 05 00000015 R		mov PosObs1, 0
+ 00000A3D  C6 05 00000015 R		mov PosObs1, 0
 	   00
- 000007F6  C6 05 0000001C R		mov PosObs2, 0
+ 00000A44  C6 05 0000001C R		mov PosObs2, 0
 	   00
- 000007FD  C7 05 00000040 R		mov Pontos, 0
+ 00000A4B  C7 05 00000040 R		mov Pontos, 0
 	   00000000
- 00000807  C3				ret
- 00000808			Reset ENDP
+ 00000A55  C3				ret
+ 00000A56			Reset ENDP
 				;====================================================================
 				;============================Perdeu==================================
 				;Recebe: nda
 				;Retorna: tela de game over
 				;====================================================================
- 00000808			Perdeu PROC
- 00000808  E8 00000000 E		call Clrscr
- 0000080D  B8 00000004			mov eax, red
- 00000812  E8 00000000 E		call SetTextColor
- 00000817  B2 01			mov dl, 1
- 00000819  B6 0A			mov dh, 10
- 0000081B  E8 00000000 E		call GotoXY
- 00000820  BA 000005AA R		mov edx, OFFSET gameover
- 00000825  E8 00000000 E		call WriteString
- 0000082A  B8 0000000F			mov eax, white
- 0000082F  E8 00000000 E		call SetTextColor
+ 00000A56			Perdeu PROC
+ 00000A56  E8 00000000 E		call Clrscr
+ 00000A5B  B8 00000004			mov eax, red
+ 00000A60  E8 00000000 E		call SetTextColor
+ 00000A65  B2 01			mov dl, 1
+ 00000A67  B6 0A			mov dh, 10
+ 00000A69  E8 00000000 E		call GotoXY
+ 00000A6E  BA 000005AA R		mov edx, OFFSET gameover
+ 00000A73  E8 00000000 E		call WriteString
+ 00000A78  B8 0000000F			mov eax, white
+ 00000A7D  E8 00000000 E		call SetTextColor
 
- 00000834  B2 01			mov dl, 1
- 00000836  B6 16			mov dh, 22
- 00000838  E8 00000000 E		call GotoXY
- 0000083D  BA 0000079C R		mov edx, OFFSET menuFinal
- 00000842  E8 00000000 E		call WriteString
- 00000847  B8 00000004			mov eax, red
- 0000084C  E8 00000000 E		call SetTextColor
- 00000851  E8 FFFFF7E5			call Moldura
+ 00000A82  B2 01			mov dl, 1
+ 00000A84  B6 16			mov dh, 22
+ 00000A86  E8 00000000 E		call GotoXY
+ 00000A8B  BA 0000079C R		mov edx, OFFSET menuFinal
+ 00000A90  E8 00000000 E		call WriteString
+ 00000A95  B8 00000004			mov eax, red
+ 00000A9A  E8 00000000 E		call SetTextColor
+ 00000A9F  E8 FFFFF597			call Moldura
 
 					;RESULTADO FINAL
- 00000856  B8 0000000F			mov eax, white
- 0000085B  E8 00000000 E		call SetTextColor
- 00000860  B2 2D			mov dl, 45
- 00000862  B6 12			mov dh, 18
- 00000864  E8 00000000 E		call GotoXY
- 00000869  A1 00000040 R		mov eax, Pontos
+ 00000AA4  B8 0000000F			mov eax, white
+ 00000AA9  E8 00000000 E		call SetTextColor
+ 00000AAE  B2 2D			mov dl, 45
+ 00000AB0  B6 12			mov dh, 18
+ 00000AB2  E8 00000000 E		call GotoXY
+ 00000AB7  A1 00000040 R		mov eax, Pontos
 					.IF eax > Recorde
- 0000086E  3B 05 00000044 R *	    cmp    eax, Recorde
- 00000874  76 1D	   *	    jbe    @C0025
- 00000876  BA 00000031 R			mov edx, OFFSET NovoRecorde
- 0000087B  E8 00000000 E			call WriteString
- 00000880  E8 FFFFFF34				call Reset
- 00000885  E8 00000000 E			call WriteDec
- 0000088A  A3 00000044 R			mov Recorde, eax
- 0000088F  EB 13				jmp ESPERANDO_TECLA
+ 00000ABC  3B 05 00000044 R *	    cmp    eax, Recorde
+ 00000AC2  76 1D	   *	    jbe    @C003E
+ 00000AC4  BA 00000031 R			mov edx, OFFSET NovoRecorde
+ 00000AC9  E8 00000000 E			call WriteString
+ 00000ACE  E8 FFFFFF34				call Reset
+ 00000AD3  E8 00000000 E			call WriteDec
+ 00000AD8  A3 00000044 R			mov Recorde, eax
+ 00000ADD  EB 13				jmp ESPERANDO_TECLA
 					.ELSE
- 00000891  EB 11	   *	    jmp    @C0027
- 00000893		   *@C0025:
- 00000893  BA 00000025 R			mov edx, OFFSET Score
- 00000898  E8 00000000 E			call WriteString
- 0000089D  E8 00000000 E			call WriteDec
- 000008A2  EB 00				jmp ESPERANDO_TECLA
+ 00000ADF  EB 11	   *	    jmp    @C0040
+ 00000AE1		   *@C003E:
+ 00000AE1  BA 00000025 R			mov edx, OFFSET Score
+ 00000AE6  E8 00000000 E			call WriteString
+ 00000AEB  E8 00000000 E			call WriteDec
+ 00000AF0  EB 00				jmp ESPERANDO_TECLA
 					.ENDIF
- 000008A4		   *@C0027:
+ 00000AF2		   *@C0040:
 
- 000008A4				ESPERANDO_TECLA:
- 000008A4  B8 00000032				mov  eax,50          ; sleep, to allow OS to time slice
- 000008A9  E8 00000000 E			call Delay           ; (otherwise, some key presses are lost)
- 000008AE  E8 00000000 E			call ReadKey         ; look for keyboard input 
+ 00000AF2				ESPERANDO_TECLA:
+ 00000AF2  B8 00000032				mov  eax,50          ; sleep, to allow OS to time slice
+ 00000AF7  E8 00000000 E			call Delay           ; (otherwise, some key presses are lost)
+ 00000AFC  E8 00000000 E			call ReadKey         ; look for keyboard input 
 
 						.IF al == "1"
- 000008B3  3C 31	   *	    cmp    al, '1'
- 000008B5  75 04	   *	    jne    @C0028
- 000008B7  EB 0F					jmp MENU_
+ 00000B01  3C 31	   *	    cmp    al, '1'
+ 00000B03  75 04	   *	    jne    @C0041
+ 00000B05  EB 0F					jmp MENU_
 						.ELSEIF al == VK_ESCAPE
- 000008B9  EB 0B	   *	    jmp    @C002A
- 000008BB		   *@C0028:
- 000008BB  3C 1B	   *	    cmp    al, VK_ESCAPE
- 000008BD  75 07	   *	    jne    @C002B
+ 00000B07  EB 0B	   *	    jmp    @C0043
+ 00000B09		   *@C0041:
+ 00000B09  3C 1B	   *	    cmp    al, VK_ESCAPE
+ 00000B0B  75 07	   *	    jne    @C0044
 							exit
- 000008BF  6A 00	   *	    push   +000000000h
- 000008C1  E8 00000000 E   *	    call   ExitProcess
+ 00000B0D  6A 00	   *	    push   +000000000h
+ 00000B0F  E8 00000000 E   *	    call   ExitProcess
 						.ENDIF
- 000008C6		   *@C002B:
- 000008C6		   *@C002A:
- 000008C6  EB DC			jmp   ESPERANDO_TECLA    ; nenhuma tecla válida pressionada, tenta novamente
+ 00000B14		   *@C0044:
+ 00000B14		   *@C0043:
+ 00000B14  EB DC			jmp   ESPERANDO_TECLA    ; nenhuma tecla válida pressionada, tenta novamente
 					
- 000008C8				MENU_:
- 000008C8  E8 FFFFFEEC			call Reset
- 000008CD  C3				ret
- 000008CE			Perdeu ENDP
+ 00000B16				MENU_:
+ 00000B16  E8 FFFFFEEC			call Reset
+ 00000B1B  C3				ret
+ 00000B1C			Perdeu ENDP
 				;====================================================================
 
- 000008CE			main PROC
- 000008CE				MENU_:
- 000008CE  E8 00000000 E		call Clrscr
+ 00000B1C			main PROC
+ 00000B1C				MENU_:
+ 00000B1C  E8 00000000 E		call Clrscr
 					;Desenha menu
- 000008D3  E8 FFFFF728			call DesenhaMenu  
- 000008D8  B8 00000004			mov eax, red     ;cor da moldura
- 000008DD  E8 FFFFF759			call Moldura
+ 00000B21  E8 FFFFF4DA			call DesenhaMenu  
+ 00000B26  B8 00000004			mov eax, red     ;cor da moldura
+ 00000B2B  E8 FFFFF50B			call Moldura
 
 					;Esperando tecla ser pressionada
- 000008E2				ESPERANDO_TECLA:
- 000008E2  B8 00000032				mov  eax,50          ; sleep, to allow OS to time slice
- 000008E7  E8 00000000 E			call Delay           ; (otherwise, some key presses are lost)
- 000008EC  E8 00000000 E			call ReadKey         ; look for keyboard input 
+ 00000B30				ESPERANDO_TECLA:
+ 00000B30  B8 00000032				mov  eax,50          ; sleep, to allow OS to time slice
+ 00000B35  E8 00000000 E			call Delay           ; (otherwise, some key presses are lost)
+ 00000B3A  E8 00000000 E			call ReadKey         ; look for keyboard input 
 
 					.IF al == "1"			 ;JOGO FÁCIL
- 000008F1  3C 31	   *	    cmp    al, '1'
- 000008F3  75 0E	   *	    jne    @C002D
- 000008F5  E8 FFFFFB5B				call Jogo
- 000008FA  E8 FFFFFF09				call Perdeu
- 000008FF  EB CD				jmp MENU_
+ 00000B3F  3C 31	   *	    cmp    al, '1'
+ 00000B41  75 0E	   *	    jne    @C0046
+ 00000B43  E8 FFFFF90D				call Jogo
+ 00000B48  E8 FFFFFF09				call Perdeu
+ 00000B4D  EB CD				jmp MENU_
 					.ELSEIF al == "2"
- 00000901  EB 1D	   *	    jmp    @C002F
- 00000903		   *@C002D:
- 00000903  3C 32	   *	    cmp    al, '2'
- 00000905  75 0E	   *	    jne    @C0030
-						;TODO jogo dificil
- 00000907  E8 00000000 E			call Clrscr
- 0000090C  E8 FFFFF72A				call moldura
- 00000911  EB 0F				jmp SAIR
+ 00000B4F  EB 1D	   *	    jmp    @C0048
+ 00000B51		   *@C0046:
+ 00000B51  3C 32	   *	    cmp    al, '2'
+ 00000B53  75 0E	   *	    jne    @C0049
+ 00000B55  E8 FFFFFB49				call Jogo2
+ 00000B5A  E8 FFFFFEF7				call Perdeu
+ 00000B5F  EB BB				jmp MENU_
 					.ELSEIF al == VK_ESCAPE
- 00000913  EB 0B	   *	    jmp    @C0032
- 00000915		   *@C0030:
- 00000915  3C 1B	   *	    cmp    al, VK_ESCAPE
- 00000917  75 07	   *	    jne    @C0033
+ 00000B61  EB 0B	   *	    jmp    @C004B
+ 00000B63		   *@C0049:
+ 00000B63  3C 1B	   *	    cmp    al, VK_ESCAPE
+ 00000B65  75 07	   *	    jne    @C004C
 						exit
- 00000919  6A 00	   *	    push   +000000000h
- 0000091B  E8 00000000 E   *	    call   ExitProcess
+ 00000B67  6A 00	   *	    push   +000000000h
+ 00000B69  E8 00000000 E   *	    call   ExitProcess
 					.ENDIF
- 00000920		   *@C0033:
- 00000920		   *@C0032:
- 00000920		   *@C002F:
+ 00000B6E		   *@C004C:
+ 00000B6E		   *@C004B:
+ 00000B6E		   *@C0048:
 					
- 00000920  EB C0			jmp   ESPERANDO_TECLA    ; nenhuma tecla válida pressionada, tenta novamente
- 00000922				SAIR:
- 00000922  B6 28				mov dh, 40
- 00000924  E8 00000000 E			call GotoXY
+ 00000B6E  EB C0			jmp   ESPERANDO_TECLA    ; nenhuma tecla válida pressionada, tenta novamente
+ 00000B70				SAIR:
+ 00000B70  B6 28				mov dh, 40
+ 00000B72  E8 00000000 E			call GotoXY
 					exit
- 00000929  6A 00	   *	    push   +000000000h
- 0000092B  E8 00000000 E   *	    call   ExitProcess
- 00000930			main ENDP
+ 00000B77  6A 00	   *	    push   +000000000h
+ 00000B79  E8 00000000 E   *	    call   ExitProcess
+ 00000B7E			main ENDP
 				END main
-Microsoft (R) Macro Assembler Version 14.16.27030.1	    06/15/19 18:54:54
+Microsoft (R) Macro Assembler Version 14.16.27027.1	    06/15/19 19:17:23
 jogo.asm						     Symbols 2 - 1
 
 
@@ -1634,21 +1853,21 @@ Segments and Groups:
 
 FLAT . . . . . . . . . . . . . .	GROUP
 STACK  . . . . . . . . . . . . .	32 Bit	 00001000 Para	  Stack	  'STACK'	 
-_DATA  . . . . . . . . . . . . .	32 Bit	 00000822 Para	  Public  'DATA'	
-_TEXT  . . . . . . . . . . . . .	32 Bit	 00000930 Para	  Public  'CODE'	
+_DATA  . . . . . . . . . . . . .	32 Bit	 00000823 Para	  Public  'DATA'	
+_TEXT  . . . . . . . . . . . . .	32 Bit	 00000B7E Para	  Public  'CODE'	
 
 
 Procedures, parameters, and locals:
 
                 N a m e                 Type     Value    Attr
 
-AtualizaObstaculos . . . . . . .	P Near	 000006A3 _TEXT	Length= 000000F6 Public STDCALL
-  PERCORRE1  . . . . . . . . . .	L Near	 000006B4 _TEXT	
-  INCREMENTA1  . . . . . . . . .	L Near	 0000071D _TEXT	
-  TIPO2  . . . . . . . . . . . .	L Near	 00000720 _TEXT	
-  PERCORRE2  . . . . . . . . . .	L Near	 0000072B _TEXT	
-  INCREMENTA2  . . . . . . . . .	L Near	 00000794 _TEXT	
-  SAIR . . . . . . . . . . . . .	L Near	 00000797 _TEXT	
+AtualizaObstaculos . . . . . . .	P Near	 000008F1 _TEXT	Length= 000000F6 Public STDCALL
+  PERCORRE1  . . . . . . . . . .	L Near	 00000902 _TEXT	
+  INCREMENTA1  . . . . . . . . .	L Near	 0000096B _TEXT	
+  TIPO2  . . . . . . . . . . . .	L Near	 0000096E _TEXT	
+  PERCORRE2  . . . . . . . . . .	L Near	 00000979 _TEXT	
+  INCREMENTA2  . . . . . . . . .	L Near	 000009E2 _TEXT	
+  SAIR . . . . . . . . . . . . .	L Near	 000009E5 _TEXT	
 CloseFile  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 CloseHandle  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 Clrscr . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
@@ -1707,6 +1926,16 @@ HeapFree . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 HeapSize . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 InicializaJogo . . . . . . . . .	P Near	 000003A9 _TEXT	Length= 00000026 Public STDCALL
 IsDigit  . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+Jogo2  . . . . . . . . . . . . .	P Near	 000006A3 _TEXT	Length= 0000024E Public STDCALL
+  JOGO_LOOP  . . . . . . . . . .	L Near	 000006A8 _TEXT	
+  NPULANDO . . . . . . . . . . .	L Near	 0000074D _TEXT	
+  AGACHADO_  . . . . . . . . . .	L Near	 00000766 _TEXT	
+  DELETA_  . . . . . . . . . . .	L Near	 00000774 _TEXT	
+  DELAY_MOVIMENTO  . . . . . . .	L Near	 000007A9 _TEXT	
+  DELAY_MOVIMENTO2 . . . . . . .	L Near	 000007FE _TEXT	
+  ATUALIZA_OBSTACULOS  . . . . .	L Near	 00000853 _TEXT	
+  TESTA_COLISAO  . . . . . . . .	L Near	 00000878 _TEXT	
+  PERDEU_  . . . . . . . . . . .	L Near	 000008F0 _TEXT	
 Jogo . . . . . . . . . . . . . .	P Near	 00000455 _TEXT	Length= 0000024E Public STDCALL
   JOGO_LOOP  . . . . . . . . . .	L Near	 0000045A _TEXT	
   NPULANDO . . . . . . . . . . .	L Near	 000004FF _TEXT	
@@ -1729,9 +1958,9 @@ OpenInputFile  . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 ParseDecimal32 . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 ParseInteger32 . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 PeekConsoleInputA  . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-Perdeu . . . . . . . . . . . . .	P Near	 00000808 _TEXT	Length= 000000C6 Public STDCALL
-  ESPERANDO_TECLA  . . . . . . .	L Near	 000008A4 _TEXT	
-  MENU_  . . . . . . . . . . . .	L Near	 000008C8 _TEXT	
+Perdeu . . . . . . . . . . . . .	P Near	 00000A56 _TEXT	Length= 000000C6 Public STDCALL
+  ESPERANDO_TECLA  . . . . . . .	L Near	 00000AF2 _TEXT	
+  MENU_  . . . . . . . . . . . .	L Near	 00000B16 _TEXT	
 Pontuacao  . . . . . . . . . . .	P Near	 000003CF _TEXT	Length= 00000028 Public STDCALL
 Random32 . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 RandomRange  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
@@ -1748,7 +1977,7 @@ ReadInt  . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 ReadKeyFlush . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 ReadKey  . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 ReadString . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-Reset  . . . . . . . . . . . . .	P Near	 000007B9 _TEXT	Length= 0000004F Public STDCALL
+Reset  . . . . . . . . . . . . .	P Near	 00000A07 _TEXT	Length= 0000004F Public STDCALL
 SetConsoleCursorInfo . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 SetConsoleCursorPosition . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 SetConsoleMode . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
@@ -1759,10 +1988,10 @@ SetConsoleWindowInfo . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 SetFilePointer . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 SetLocalTime . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 SetTextColor . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-ShiftLeftVetorPosicao  . . . . .	P Near	 00000799 _TEXT	Length= 00000020 Public STDCALL
-  PERCORRE . . . . . . . . . . .	L Near	 000007A3 _TEXT	
-  EXCEPTION_ . . . . . . . . . .	L Near	 000007AE _TEXT	
-  SAIR . . . . . . . . . . . . .	L Near	 000007B5 _TEXT	
+ShiftLeftVetorPosicao  . . . . .	P Near	 000009E7 _TEXT	Length= 00000020 Public STDCALL
+  PERCORRE . . . . . . . . . . .	L Near	 000009F1 _TEXT	
+  EXCEPTION_ . . . . . . . . . .	L Near	 000009FC _TEXT	
+  SAIR . . . . . . . . . . . . .	L Near	 00000A03 _TEXT	
 ShowFPUStack . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 Sleep  . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 StrLength  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
@@ -1790,10 +2019,10 @@ WriteStackFrame  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 WriteString  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteToFile  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteWindowsMsg  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-main . . . . . . . . . . . . . .	P Near	 000008CE _TEXT	Length= 00000062 Public STDCALL
-  MENU_  . . . . . . . . . . . .	L Near	 000008CE _TEXT	
-  ESPERANDO_TECLA  . . . . . . .	L Near	 000008E2 _TEXT	
-  SAIR . . . . . . . . . . . . .	L Near	 00000922 _TEXT	
+main . . . . . . . . . . . . . .	P Near	 00000B1C _TEXT	Length= 00000062 Public STDCALL
+  MENU_  . . . . . . . . . . . .	L Near	 00000B1C _TEXT	
+  ESPERANDO_TECLA  . . . . . . .	L Near	 00000B30 _TEXT	
+  SAIR . . . . . . . . . . . . .	L Near	 00000B70 _TEXT	
 printf . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 scanf  . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 wsprintfA  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
