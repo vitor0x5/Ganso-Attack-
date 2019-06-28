@@ -6,7 +6,22 @@
 
 INCLUDE Irvine32.inc
 
+includelib Winmm.lib
+
+;==========Função que dispara os sons===============================
+PlaySound PROTO,
+        pszSound:PTR BYTE, 
+        hmod:DWORD, 
+        fdwSound:DWORD
+;==================================================================
+
 .data
+deviceConnect BYTE "DeviceConnect",0
+fileQuack BYTE "c://quack.wav",0
+SND_ASYNC    DWORD 00000001h
+SND_RESOURCE DWORD 00040005h
+SND_FILENAME DWORD 00020000h
+
 ;Contadores de tempo para execução dos procedimentos do jogo
 contadorTempo DWORD 0
 contadorObstaculo DWORD 0
@@ -556,6 +571,7 @@ Jogo PROC
 		
 		.IF al == "w"        ;Faz o Ganso Pular
 			;Deletando o Desenho do Ganso
+			INVOKE PlaySound, OFFSET fileQuack, NULL, 00020001h
 			mov statusGanso, 2
 			mov PosX,16
 			mov PosY, Y_GANSO_EM_PE
@@ -571,6 +587,7 @@ Jogo PROC
 		
 		.ELSEIF al ==  "s"    ;Faz o Ganso Agachar
 			;Deletando o Desenho do Ganso
+			INVOKE PlaySound, OFFSET fileQuack, NULL, 00020001h
 			mov PosX,16
 			cmp statusGanso, 2
 			jne NPULANDO
